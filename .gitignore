@@ -1,0 +1,46 @@
+
+---s
+
+## 3. `.gitignore`
+
+Create `.gitignore` at the root:
+
+```gitignore
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# VS Code
+.vscode/
+.history/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+
+# Plots and outputs
+*.png
+*.pdf
+*.svg
+*.eps
+
+# Logs
+*.log
