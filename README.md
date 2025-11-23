@@ -18,5 +18,5 @@ pc-cc/
 ├── .gitignore           # Git ignore rules
 ├── requirements.txt     # Python dependencies
 └── sim/
-    ├── __init__.py
-    └── platoon_sim.py   # Two-car platoon switched system simulation
+    ├── pccc_synth_platoon.py
+    └── pccc_sim_platoon.py   # Two-car platoon switched system simulation
