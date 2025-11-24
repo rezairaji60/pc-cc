@@ -1,6 +1,4 @@
 """
-pccc_synth_platoon_linear.py
-
 Affine (degree-1) V_v(x) for Path-Complete Closure Certificates (PC-CC)
 on the two-car platoon example.
 
@@ -16,28 +14,26 @@ We enforce three inequalities on a finite grid:
     C_u(x, x') <= lambda1 * C_v(f_sigma(x), x')
                   + (1 - lambda1)*zeta - delta2
 
-(3) Safety / well-foundedness with margin delta3:
-    For all x0 ∈ X0, x ∈ X_safe, x' ∈ X_unsafe:
+(3) Well-foundedness / finite visits of X_u with margin delta3:
+    For all x0 ∈ X0, x ∈ X_u, x' ∈ X_u:
 
-    C_v(x0, x) - C_v(x0, x') <=
-        lambda2 * C_v(x0, x) + lambda3 * C_v(x, x')
-        - (theta + lambda2*zeta + lambda3*zeta) - delta3
+    C_v(x0, x') + C_v(x, x0)
+        <= lambda2 * C_v(x0, x) + lambda3 * C_v(x, x')
+           - (theta + lambda2*zeta + lambda3*zeta) - delta3
 
-Equivalently:
-    lhs = C_v(x0, x) - C_v(x0, x')
-          - lambda2 * C_v(x0, x) - lambda3 * C_v(x, x')
-          + (theta + lambda2*zeta + lambda3*zeta) + delta3 <= 0
+Equivalently, we enforce lhs <= 0 with:
 
-To avoid the trivial solution, we impose a normalization:
-    C_0(x_ref, x_ref_plus) = -1
+    lhs = C_v(x0, x') + C_v(x, x0)
+          - lambda2 * C_v(x0, x)
+          - lambda3 * C_v(x, x')
+          + (theta + lambda2*zeta + lambda3*zeta) + delta3
 
 Domain ("Option A"):
     x1 ∈ [0.0, 2.5]
     x2 ∈ [0.5, 3.0]
     gap = x2 - x1 >= 0
 
-Safe / unsafe sets via gap:
-    safe:   gap >= d_safe
+Unsafe set X_u via gap:
     unsafe: gap <= d_unsafe, with 0 <= d_unsafe < d_safe
 
 Template for V_v(x), x ∈ R^2, linear:
@@ -60,7 +56,7 @@ import os
 ZETA = 1.2
 LAMBDA1 = 0.9
 
-# Ranking / safety parameters
+# Ranking / well-foundedness parameters
 LAMBDA2 = 0.1
 LAMBDA3 = 0.1
 THETA   = 0.005
@@ -226,7 +222,7 @@ def synthesize_pccc():
         h_x2 = 0.0
     print(f"Coarse grid spacing: h_x1={h_x1:.3f}, h_x2={h_x2:.3f}")
 
-    # Initial states X0: slightly smaller band, with gap >= D_SAFE
+    # Initial states X0: smaller band, with gap >= D_SAFE
     X0_coarse, _, _ = make_grid_optionA(
         n1=5, n2=5,
         x1_range=(0.0, 1.5),
@@ -234,14 +230,11 @@ def synthesize_pccc():
     )
     X0_grid = [x for x in X0_coarse if (x[1] - x[0]) >= D_SAFE]
 
-    # Safe / unsafe states based on gap thresholds
+    # Unsafe states based on gap thresholds
     unsafe_points = [x for x in Xp_grid if (x[1] - x[0]) <= D_UNSAFE]
-    safe_points   = [x for x in Xp_grid if (x[1] - x[0]) >= D_SAFE]
 
     if not unsafe_points:
         print("[WARN] No unsafe points in grid; consider adjusting D_UNSAFE.")
-    if not safe_points:
-        print("[WARN] No safe points in grid; consider adjusting D_SAFE.")
     if not X0_grid:
         print("[WARN] No initial points in X0_grid; consider adjusting X0 ranges.")
     X0_grid = np.array(X0_grid)
@@ -271,31 +264,32 @@ def synthesize_pccc():
                 constraints.append(C_u <= rhs)
 
     # -----------------------------------------------------------------
-    # (3) Safety / well-foundedness with margin:
+    # (3) Well-foundedness / finite visits of X_u with margin:
     #
-    # For all x0 ∈ X0, x ∈ X_safe, x' ∈ X_unsafe:
+    # For all x0 ∈ X0, x ∈ X_u, x' ∈ X_u:
     #
-    #   C_v(x0,x) - C_v(x0,x')
+    #   C_v(x0,x') + C_v(x,x0)
     #       <= LAMBDA2*C_v(x0,x) + LAMBDA3*C_v(x,x')
     #          - (THETA + LAMBDA2*ZETA + LAMBDA3*ZETA) - DELTA3
     #
     # Equivalently, enforce lhs <= 0 with:
     #
-    #   lhs = C_v(x0,x) - C_v(x0,x')
+    #   lhs = C_v(x0,x') + C_v(x,x0)
     #         - LAMBDA2*C_v(x0,x) - LAMBDA3*C_v(x,x')
     #         + (THETA + LAMBDA2*ZETA + LAMBDA3*ZETA) + DELTA3
     # -----------------------------------------------------------------
-    if unsafe_points and safe_points and len(X0_grid) > 0:
+    if unsafe_points and len(X0_grid) > 0:
         for v in NODES:
             for x0 in X0_grid:
-                for x in safe_points:
+                for x in unsafe_points:
                     for x_u in unsafe_points:
-                        C_x0_x  = C_expr(c[v, :], x0, x)
                         C_x0_xu = C_expr(c[v, :], x0, x_u)
+                        C_x_x0  = C_expr(c[v, :], x,  x0)
+                        C_x0_x  = C_expr(c[v, :], x0, x)
                         C_x_xu  = C_expr(c[v, :], x,  x_u)
 
                         lhs = (
-                            C_x0_x - C_x0_xu
+                            C_x0_xu + C_x_x0
                             - LAMBDA2 * C_x0_x
                             - LAMBDA3 * C_x_xu
                             + (THETA + LAMBDA2 * ZETA + LAMBDA3 * ZETA)
@@ -368,7 +362,6 @@ def max_violation(params):
     delta1 = params["delta1"]
     delta2 = params["delta2"]
     delta3 = params["delta3"]
-    d_safe = params["d_safe"]
     d_unsafe = params["d_unsafe"]
 
     # Finer grids
@@ -389,11 +382,10 @@ def max_violation(params):
         x1_range=(0.0, 1.5),
         x2_range=(1.0, 2.5)
     )
-    X0_grid = [x for x in X0_fine if (x[1] - x[0]) >= d_safe]
+    X0_grid = [x for x in X0_fine if (x[1] - x[0]) >= D_SAFE]
     X0_grid = np.array(X0_grid)
 
     unsafe_points = [x for x in Xp_grid if (x[1] - x[0]) <= d_unsafe]
-    safe_points   = [x for x in Xp_grid if (x[1] - x[0]) >= d_safe]
 
     viol1 = 0.0
     viol2 = 0.0
@@ -418,18 +410,19 @@ def max_violation(params):
                 lhs = C_u - rhs
                 viol2 = max(viol2, lhs)
 
-    # (3) Safety / well-foundedness with margin
-    if unsafe_points and safe_points and len(X0_grid) > 0:
+    # (3) Well-foundedness / finite visits with margin
+    if unsafe_points and len(X0_grid) > 0:
         for v in NODES:
             for x0 in X0_grid:
-                for x in safe_points:
+                for x in unsafe_points:
                     for x_u in unsafe_points:
-                        C_x0_x  = C_eval(c[v, :], x0, x)
                         C_x0_xu = C_eval(c[v, :], x0, x_u)
+                        C_x_x0  = C_eval(c[v, :], x,  x0)
+                        C_x0_x  = C_eval(c[v, :], x0, x)
                         C_x_xu  = C_eval(c[v, :], x,  x_u)
 
                         lhs = (
-                            C_x0_x - C_x0_xu
+                            C_x0_xu + C_x_x0
                             - lambda2 * C_x0_x
                             - lambda3 * C_x_xu
                             + (theta + lambda2 * zeta + lambda3 * zeta)
@@ -441,10 +434,10 @@ def max_violation(params):
 
 
 # ---------------------------------------------------------------------
-# 7. Lipschitz constants for C_v in state-space (exact for linear)
+# 7. Lipschitz constants for C_v in state-space (∞-norm)
 # ---------------------------------------------------------------------
 
-def lipschitz_C_for_node_linear(c_row):
+def lipschitz_C_for_node_linear_infty(c_row):
     """
     For linear V(x) = c0 + c1 x1 + c2 x2, we have:
 
@@ -455,26 +448,30 @@ def lipschitz_C_for_node_linear(c_row):
         grad_x C = -grad V = [-c1, -c2]
         grad_x' C = grad V = [c1, c2]
 
-    So the gradient wrt (x,x') ∈ R^4 is
+    The gradient wrt (x, x') ∈ R^4 is:
 
-        grad_C = [-c1, -c2, c1, c2]
+        grad_C = [-c1, -c2, c1, c2].
 
-    and its 2-norm is sqrt(2) * ||[c1, c2]||_2 (constant over domain).
-    This is a global Lipschitz constant.
+    The Lipschitz constant of C with respect to the ∞-norm on (x,x')
+    is the dual 1-norm of grad_C:
+
+        L_∞ = ||grad_C||_1 = 2 (|c1| + |c2|).
+
+    This is a global Lipschitz constant (independent of x,x').
     """
-    c0, c1, c2 = c_row
-    g = np.array([c1, c2])
-    return float(np.sqrt(2.0) * np.linalg.norm(g, 2))
+    _, c1, c2 = c_row
+    return float(2.0 * (abs(c1) + abs(c2)))
 
 
-def compute_lipschitz_constants(params):
+def compute_lipschitz_constants_infty(params):
     """
-    Compute exact Lipschitz constants of C_v for each node for the linear case.
+    Compute exact Lipschitz constants of C_v for each node, w.r.t. the
+    ∞-norm on (x,x'), for the linear case.
     """
     c = params["coeffs"]
     Ls = []
     for v in NODES:
-        L_v = lipschitz_C_for_node_linear(c[v, :])
+        L_v = lipschitz_C_for_node_linear_infty(c[v, :])
         Ls.append(L_v)
     return Ls
 
@@ -483,7 +480,7 @@ def compute_lipschitz_constants(params):
 # 8. Saving coefficients for later use (simulations, plotting)
 # ---------------------------------------------------------------------
 
-def save_coefficients(params, filename="pccc_platoon_coeffs_linear.npy"):
+def save_coefficients(params, Ls_infty, filename="pccc_platoon_coeffs_linear.npy"):
     """
     Save coefficients and parameters to a .npy file for later use.
     """
@@ -507,6 +504,8 @@ def save_coefficients(params, filename="pccc_platoon_coeffs_linear.npy"):
         "d_unsafe": params["d_unsafe"],
         "coarse_h_x1": params["coarse_h_x1"],
         "coarse_h_x2": params["coarse_h_x2"],
+        "L_C_infty_nodes": Ls_infty,
+        "L_C_infty_max": max(Ls_infty) if Ls_infty else None,
     }
     np.save(filename, out, allow_pickle=True)
     print(f"\nSaved linear PC-CC coefficients and parameters to {os.path.abspath(filename)}")
@@ -526,16 +525,16 @@ def main():
     print("\nMax violation on finer grid:")
     print("  (1) Transition boundedness   :", viol1)
     print("  (2) Forward contraction      :", viol2)
-    print("  (3) Safety / well-foundedness:", viol3)
+    print("  (3) Well-foundedness (X_u)   :", viol3)
 
-    # Lipschitz constants of C_v in state-space (exact for linear case)
-    Ls = compute_lipschitz_constants(params)
-    print("\nExact Lipschitz constants of C_v (||grad||_2 over x,x'):")
-    for v, L in zip(NODES, Ls):
-        print(f"  Node v{v+1}: L_C = {L:.4f}")
+    # Lipschitz constants of C_v in state-space (∞-norm for hyperrectangular cover)
+    Ls_infty = compute_lipschitz_constants_infty(params)
+    print("\nExact Lipschitz constants of C_v (||grad||_∞ on (x,x')):")
+    for v, L in zip(NODES, Ls_infty):
+        print(f"  Node v{v+1}: L_C,∞ = {L:.4f}")
 
     # Save coefficients to use in other scripts (simulation/plots)
-    save_coefficients(params)
+    save_coefficients(params, Ls_infty)
 
 
 if __name__ == "__main__":
