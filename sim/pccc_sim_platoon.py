@@ -1,5 +1,7 @@
 """
-pccc_sim_platoon.py
+Author: Reza Iraji
+Date:   November 2025
+File:   pccc_sim_platoon.py
 
 Simulation and plotting for Path-Complete Closure Certificates (PC-CC)
 on the two-car platoon example, using the *linear* PC-CC synthesized

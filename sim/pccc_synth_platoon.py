@@ -1,4 +1,7 @@
 """
+Author: Reza Iraji
+Date:   November 2025
+
 Affine (degree-1) V_v(x) for Path-Complete Closure Certificates (PC-CC)
 on the two-car platoon example.
 
