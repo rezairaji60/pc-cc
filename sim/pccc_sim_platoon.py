@@ -7,21 +7,18 @@ Simulation and plotting for Path-Complete Closure Certificates (PC-CC)
 on the two-car platoon example, using the *linear* PC-CC synthesized
 in pccc_synth_platoon.py.
 
-Figures produced (for paper / journal case study):
+Figures produced:
 
 1) Separate figures:
    - State-space trajectories (x1, x2) with domain, unsafe band, safe band.
    - Gap evolution g(t) = x2(t) - x1(t) with unsafe/safe shaded regions.
    - Closure values C_{v_t}(x_t, x_{t+1}) with threshold zeta.
 
-2) Combined 3-panel figure:
-   - Left: state trajectories.
-   - Middle: gap evolution.
-   - Right: closure values.
+2) Combined 3-panel figures:
+   - Safe initial condition: standard example.
+   - Unsafe initial condition: persistence illustration (finite visits).
 
-Run from repo root:
-
-    python -m sim.pccc_sim_platoon
+All legends are placed externally (to the right) for better visibility.
 """
 
 import os
@@ -117,7 +114,7 @@ def C_eval(c_v, x, xp):
 
 def next_node(v_curr, sigma):
     """
-    Simple deterministic node update along the path-complete graph:
+    Deterministic node update along the path-complete graph:
     given current node v_curr and mode sigma, pick the FIRST edge
     (v_curr, sigma, v_next) from EDGES. If none found, stay in v_curr.
     """
@@ -158,15 +155,7 @@ def simulate_trajectory(x0, T, switching_rule):
 
 def simulate_with_node_tracking(x0, T, switching_rule, c, node0=0):
     """
-    Simulate trajectory and also track the graph node v_t,
-    and closure values C_{v_t}(x_t, x_{t+1}).
-
-    Inputs:
-        x0 : initial state
-        T  : horizon
-        switching_rule : function f(t, x_t) -> sigma
-        c   : np.array of shape (2,3), PC-CC coefficients (for nodes v1,v2)
-        node0 : initial node index (0 or 1)
+    Simulate trajectory and track graph node v_t and closure values.
 
     Returns:
         X        : (T+1,2)
@@ -182,7 +171,6 @@ def simulate_with_node_tracking(x0, T, switching_rule, c, node0=0):
     C_values = np.zeros(T)
     V_values = np.zeros(T + 1)
 
-    # Evaluate V at t=0
     V_values[0] = V_eval(c[v_path[0], :], X[0, :])
 
     for t in range(T):
@@ -198,7 +186,7 @@ def simulate_with_node_tracking(x0, T, switching_rule, c, node0=0):
 
 
 # ---------------------------------------------------------------------
-# 5. Define some switching rules for experiments
+# 5. Switching rules
 # ---------------------------------------------------------------------
 
 def switching_always1(t, x):
@@ -223,16 +211,28 @@ def switching_random(p=0.5):
 
 
 # ---------------------------------------------------------------------
-# 6. Plotting utilities
-#    (axis-aware so we can reuse for combined figure)
+# 6. Plotting utilities (with external legends)
 # ---------------------------------------------------------------------
 
-def _dedup_legend(ax):
-    """Helper to remove duplicate legend entries (by label)."""
+def _dedup_legend(ax, outside=True):
+    """
+    Helper to remove duplicate legend entries (by label) and place the
+    legend externally to the right for better visibility.
+    """
     handles, labels = ax.get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
     if by_label:
-        ax.legend(by_label.values(), by_label.keys(), loc="best")
+        if outside:
+            ax.legend(
+                by_label.values(),
+                by_label.keys(),
+                loc="upper left",
+                bbox_to_anchor=(1.02, 1.0),
+                borderaxespad=0.0,
+                framealpha=0.9,
+            )
+        else:
+            ax.legend(by_label.values(), by_label.keys(), loc="best")
 
 
 def plot_state_trajectories(pl_params, trajectories, title_suffix="", ax=None):
@@ -241,10 +241,6 @@ def plot_state_trajectories(pl_params, trajectories, title_suffix="", ax=None):
         'X'       : (T+1,2)
         'label'   : string
         'color'   : matplotlib color
-    pl_params: dict from loaded data (zeta, d_safe, d_unsafe, domain ranges)
-
-    If ax is None, creates a new figure; otherwise draws on the given axis.
-    Returns (fig, ax).
     """
     d_safe = pl_params["d_safe"]
     d_unsafe = pl_params["d_unsafe"]
@@ -258,16 +254,16 @@ def plot_state_trajectories(pl_params, trajectories, title_suffix="", ax=None):
     else:
         fig = ax.figure
 
-    # Plot domain box
     ax.set_xlim(x1_min, x1_max)
     ax.set_ylim(x2_min, x2_max)
 
-    # Unsafe band: gap <= d_unsafe => x2 <= x1 + d_unsafe
     x1_line = np.linspace(x1_min, x1_max, 200)
+
+    # Unsafe band: gap <= d_unsafe => x2 <= x1 + d_unsafe
     ax.fill_between(
         x1_line,
-        x1_line,                # x2 = x1 (gap = 0)
-        x1_line + d_unsafe,     # x2 = x1 + d_unsafe
+        x1_line,                # g = 0
+        x1_line + d_unsafe,
         color="red",
         alpha=0.2,
         label=r"unsafe band ($g \leq d_{\mathrm{unsafe}}$)",
@@ -283,26 +279,32 @@ def plot_state_trajectories(pl_params, trajectories, title_suffix="", ax=None):
         label=r"safe band ($g \geq d_{\mathrm{safe}}$)",
     )
 
-    # Plot diagonal (gap=0)
+    # Diagonal g = 0
     ax.plot(x1_line, x1_line, "k--", linewidth=1, label=r"$g = 0$")
 
-    # Plot trajectories
     for traj in trajectories:
         X = traj["X"]
-        ax.plot(X[:, 0], X[:, 1],
-                color=traj.get("color", "blue"),
-                linewidth=1.5,
-                label=traj.get("label", None),
-                alpha=0.9)
-        ax.plot(X[0, 0], X[0, 1], "o",
-                color=traj.get("color", "blue"),
-                markersize=4)
+        ax.plot(
+            X[:, 0],
+            X[:, 1],
+            color=traj.get("color", "blue"),
+            linewidth=1.5,
+            label=traj.get("label", None),
+            alpha=0.9,
+        )
+        ax.plot(
+            X[0, 0],
+            X[0, 1],
+            "o",
+            color=traj.get("color", "blue"),
+            markersize=4,
+        )
 
     ax.set_xlabel(r"$x_1$ (follower velocity)")
     ax.set_ylabel(r"$x_2$ (leader velocity)")
     ax.set_title("Platoon state trajectories" + title_suffix)
     ax.grid(True)
-    _dedup_legend(ax)
+    _dedup_legend(ax, outside=True)
 
     if created_fig:
         fig.tight_layout()
@@ -315,10 +317,6 @@ def plot_gap_trajectories(pl_params, trajectories, title_suffix="", ax=None):
         'X'     : (T+1,2)
         'label' : string
         'color' : matplotlib color
-
-    Adds shaded unsafe and safe gap regions:
-        - unsafe: 0 <= g <= d_unsafe
-        - safe:   g >= d_safe
     """
     d_safe = pl_params["d_safe"]
     d_unsafe = pl_params["d_unsafe"]
@@ -330,7 +328,6 @@ def plot_gap_trajectories(pl_params, trajectories, title_suffix="", ax=None):
     else:
         fig = ax.figure
 
-    # Precompute gap trajectories to get a good y-range
     gap_series = []
     max_g = 0.0
     for traj in trajectories:
@@ -339,34 +336,50 @@ def plot_gap_trajectories(pl_params, trajectories, title_suffix="", ax=None):
         gap_series.append((g, traj))
         max_g = max(max_g, np.max(g))
 
-    # Avoid degenerate scaling
     max_g = max(max_g, d_safe * 1.1, d_unsafe * 1.1)
-
     T_plus_1 = gap_series[0][0].shape[0] if gap_series else 0
     t = np.arange(T_plus_1)
 
-    # Shaded unsafe band (horizontal)
-    ax.axhspan(0.0, d_unsafe,
-               color="red", alpha=0.08,
-               label=r"unsafe gap region ($g \leq d_{\mathrm{unsafe}}$)")
+    ax.axhspan(
+        0.0,
+        d_unsafe,
+        color="red",
+        alpha=0.08,
+        label=r"unsafe gap region ($g \leq d_{\mathrm{unsafe}}$)",
+    )
 
-    # Shaded safe band (horizontal)
-    ax.axhspan(d_safe, max_g,
-               color="green", alpha=0.05,
-               label=r"safe gap region ($g \geq d_{\mathrm{safe}}$)")
+    ax.axhspan(
+        d_safe,
+        max_g,
+        color="green",
+        alpha=0.05,
+        label=r"safe gap region ($g \geq d_{\mathrm{safe}}$)",
+    )
 
-    # Plot trajectories
     for g, traj in gap_series:
-        ax.plot(t, g,
-                color=traj.get("color", "blue"),
-                linewidth=1.5,
-                label=traj.get("label", None),
-                alpha=0.9)
+        ax.plot(
+            t,
+            g,
+            color=traj.get("color", "blue"),
+            linewidth=1.5,
+            label=traj.get("label", None),
+            alpha=0.9,
+        )
 
-    ax.axhline(d_safe, linestyle="--", color="green", linewidth=1,
-               label=r"$d_{\mathrm{safe}}$")
-    ax.axhline(d_unsafe, linestyle="--", color="red", linewidth=1,
-               label=r"$d_{\mathrm{unsafe}}$")
+    ax.axhline(
+        d_safe,
+        linestyle="--",
+        color="green",
+        linewidth=1,
+        label=r"$d_{\mathrm{safe}}$",
+    )
+    ax.axhline(
+        d_unsafe,
+        linestyle="--",
+        color="red",
+        linewidth=1,
+        label=r"$d_{\mathrm{unsafe}}$",
+    )
 
     ax.set_xlim(0, T_plus_1 - 1 if T_plus_1 > 0 else 1)
     ax.set_ylim(0.0, max_g * 1.05)
@@ -375,7 +388,7 @@ def plot_gap_trajectories(pl_params, trajectories, title_suffix="", ax=None):
     ax.set_ylabel(r"gap $g(t) = x_2(t) - x_1(t)$")
     ax.set_title("Gap evolution along trajectories" + title_suffix)
     ax.grid(True)
-    _dedup_legend(ax)
+    _dedup_legend(ax, outside=True)
 
     if created_fig:
         fig.tight_layout()
@@ -401,20 +414,28 @@ def plot_closure_trajectories(pl_params, trajectories, title_suffix="", ax=None)
     for traj in trajectories:
         C_vals = traj["C_values"]
         t = np.arange(len(C_vals))
-        ax.plot(t, C_vals,
-                color=traj.get("color", "blue"),
-                linewidth=1.5,
-                label=traj.get("label", None),
-                alpha=0.9)
+        ax.plot(
+            t,
+            C_vals,
+            color=traj.get("color", "blue"),
+            linewidth=1.5,
+            label=traj.get("label", None),
+            alpha=0.9,
+        )
 
-    ax.axhline(zeta, linestyle="--", color="black", linewidth=1,
-               label=r"$\zeta$")
+    ax.axhline(
+        zeta,
+        linestyle="--",
+        color="black",
+        linewidth=1,
+        label=r"$\zeta$",
+    )
 
     ax.set_xlabel("time step $t$")
     ax.set_ylabel(r"$C_{v_t}(x_t, x_{t+1})$")
     ax.set_title("Closure values along trajectories" + title_suffix)
     ax.grid(True)
-    _dedup_legend(ax)
+    _dedup_legend(ax, outside=True)
 
     if created_fig:
         fig.tight_layout()
@@ -426,18 +447,15 @@ def plot_closure_trajectories(pl_params, trajectories, title_suffix="", ax=None)
 # ---------------------------------------------------------------------
 
 def main():
-    # -----------------------------------------------------------------
     # Load PC-CC data
-    # -----------------------------------------------------------------
     data = load_pccc_linear()
-    c = data["coeffs"]        # shape (2,3)
+    c = data["coeffs"]
     zeta = data["zeta"]
     lambda1 = data["lambda1"]
     print("Loaded linear PC-CC:")
     print("  coeffs c =\n", c)
     print("  zeta =", zeta, "  lambda1 =", lambda1)
 
-    # For convenience
     pl_params = {
         "zeta": zeta,
         "d_safe": data["d_safe"],
@@ -446,22 +464,29 @@ def main():
         "x2_range": data["x2_range"],
     }
 
-    # Output directory for figures (journal-ready PDFs)
     here = os.path.dirname(__file__)
     figs_dir = os.path.join(here, "..", "figs")
     os.makedirs(figs_dir, exist_ok=True)
 
     # -----------------------------------------------------------------
-    # Simulation setup
+    # Simulation setup: safe and unsafe initial conditions
     # -----------------------------------------------------------------
-    x0_list = [
+    # Safe initial conditions (g >= d_safe in synthesis domain)
+    x0_list_safe = [
         np.array([0.5, 2.0]),
         np.array([1.0, 2.5]),
         np.array([0.2, 1.5]),
     ]
+
+    # Unsafe initial conditions (g <= d_unsafe) to illustrate persistence
+    # These satisfy 0 <= x2 - x1 <= d_unsafe
+    x0_list_unsafe = [
+        np.array([1.0, 1.15]),   # gap = 0.15
+        np.array([0.8, 0.95]),   # gap = 0.15
+    ]
+
     T = 30  # simulation horizon
 
-    # Define some switching patterns
     switching_rules = [
         ("always mode 1", switching_always1, "tab:blue"),
         ("always mode 2", switching_always2, "tab:orange"),
@@ -469,36 +494,34 @@ def main():
         ("random p=0.5", switching_random(0.5), "tab:red"),
     ]
 
-    # Simulate all combinations of x0 and switching rules
     state_trajs = []
     gap_trajs = []
     closure_trajs = []
 
-    for i, x0 in enumerate(x0_list):
+    # Safe initial conditions
+    for x0 in x0_list_safe:
         for name, rule, color in switching_rules:
-            label = f"x0={x0}, {name}"
+            label = f"safe x0={x0}, {name}"
             X, sigmas, v_path, C_vals, V_vals = simulate_with_node_tracking(
                 x0, T, rule, c, node0=0
             )
+            state_trajs.append({"X": X, "label": label, "color": color})
+            gap_trajs.append({"X": X, "label": label, "color": color})
+            closure_trajs.append({"C_values": C_vals, "label": label, "color": color})
 
-            state_trajs.append({
-                "X": X,
-                "label": label,
-                "color": color,
-            })
-            gap_trajs.append({
-                "X": X,
-                "label": label,
-                "color": color,
-            })
-            closure_trajs.append({
-                "C_values": C_vals,
-                "label": label,
-                "color": color,
-            })
+    # Unsafe initial conditions (persistence example)
+    for x0 in x0_list_unsafe:
+        for name, rule, color in switching_rules:
+            label = f"unsafe x0={x0}, {name}"
+            X, sigmas, v_path, C_vals, V_vals = simulate_with_node_tracking(
+                x0, T, rule, c, node0=0
+            )
+            state_trajs.append({"X": X, "label": label, "color": color})
+            gap_trajs.append({"X": X, "label": label, "color": color})
+            closure_trajs.append({"C_values": C_vals, "label": label, "color": color})
 
     # -----------------------------------------------------------------
-    # Individual figures (good for diagnostics and supplementary material)
+    # Individual figures (all trajectories together)
     # -----------------------------------------------------------------
     fig_states, ax_states = plot_state_trajectories(
         pl_params, state_trajs, title_suffix=" (linear PC-CC)"
@@ -525,65 +548,85 @@ def main():
     )
 
     # -----------------------------------------------------------------
-    # Combined 3-panel figure for journal: single x0, multiple switchings
+    # Combined 3-panel figure: representative safe initial condition
     # -----------------------------------------------------------------
-    x0_rep = np.array([0.5, 2.0])
-    rep_state_trajs = []
-    rep_gap_trajs = []
-    rep_closure_trajs = []
+    x0_rep_safe = np.array([0.5, 2.0])
+    rep_state_trajs_safe = []
+    rep_gap_trajs_safe = []
+    rep_closure_trajs_safe = []
 
     for name, rule, color in switching_rules:
-        label = name  # cleaner labels for journal figure
+        label = name
         X, sigmas, v_path, C_vals, V_vals = simulate_with_node_tracking(
-            x0_rep, T, rule, c, node0=0
+            x0_rep_safe, T, rule, c, node0=0
         )
-        rep_state_trajs.append({
-            "X": X,
-            "label": label,
-            "color": color,
-        })
-        rep_gap_trajs.append({
-            "X": X,
-            "label": label,
-            "color": color,
-        })
-        rep_closure_trajs.append({
-            "C_values": C_vals,
-            "label": label,
-            "color": color,
-        })
+        rep_state_trajs_safe.append({"X": X, "label": label, "color": color})
+        rep_gap_trajs_safe.append({"X": X, "label": label, "color": color})
+        rep_closure_trajs_safe.append({"C_values": C_vals, "label": label, "color": color})
 
-    fig_comb, axes = plt.subplots(1, 3, figsize=(14, 4))
+    fig_comb_safe, axes_safe = plt.subplots(1, 3, figsize=(16, 4))
 
-    # Left: state-space trajectories
-    plot_state_trajectories(
-        pl_params, rep_state_trajs, title_suffix="", ax=axes[0]
+    plot_state_trajectories(pl_params, rep_state_trajs_safe, title_suffix="", ax=axes_safe[0])
+    axes_safe[0].set_title("State trajectories (safe $x_0$)")
+
+    plot_gap_trajectories(pl_params, rep_gap_trajs_safe, title_suffix="", ax=axes_safe[1])
+    axes_safe[1].set_title("Gap evolution (safe $x_0$)")
+
+    plot_closure_trajectories(pl_params, rep_closure_trajs_safe, title_suffix="", ax=axes_safe[2])
+    axes_safe[2].set_title("Closure values (safe $x_0$)")
+
+    fig_comb_safe.suptitle(
+        "Two-car platoon with linear Path-Complete Closure Certificates (safe initial condition)",
+        y=1.05,
+        fontsize=12,
     )
-    axes[0].set_title("State trajectories")
-
-    # Middle: gap evolution with shaded bands
-    plot_gap_trajectories(
-        pl_params, rep_gap_trajs, title_suffix="", ax=axes[1]
-    )
-    axes[1].set_title("Gap evolution")
-
-    # Right: closure values vs time
-    plot_closure_trajectories(
-        pl_params, rep_closure_trajs, title_suffix="", ax=axes[2]
-    )
-    axes[2].set_title("Closure values")
-
-    fig_comb.suptitle(
-        "Two-car platoon with linear Path-Complete Closure Certificates",
-        y=1.02, fontsize=12
-    )
-    fig_comb.tight_layout()
-    fig_comb.savefig(
-        os.path.join(figs_dir, "platoon_combined_linear.pdf"),
+    fig_comb_safe.tight_layout()
+    fig_comb_safe.savefig(
+        os.path.join(figs_dir, "platoon_combined_linear_safe.pdf"),
         bbox_inches="tight"
     )
 
-    # Show figures interactively if desired
+    # -----------------------------------------------------------------
+    # Combined 3-panel figure: representative unsafe initial condition
+    # (persistence: finitely many visits to unsafe band)
+    # -----------------------------------------------------------------
+    x0_rep_unsafe = x0_list_unsafe[0]
+    rep_state_trajs_unsafe = []
+    rep_gap_trajs_unsafe = []
+    rep_closure_trajs_unsafe = []
+
+    for name, rule, color in switching_rules:
+        label = name
+        X, sigmas, v_path, C_vals, V_vals = simulate_with_node_tracking(
+            x0_rep_unsafe, T, rule, c, node0=0
+        )
+        rep_state_trajs_unsafe.append({"X": X, "label": label, "color": color})
+        rep_gap_trajs_unsafe.append({"X": X, "label": label, "color": color})
+        rep_closure_trajs_unsafe.append({"C_values": C_vals, "label": label, "color": color})
+
+    fig_comb_unsafe, axes_unsafe = plt.subplots(1, 3, figsize=(16, 4))
+
+    plot_state_trajectories(pl_params, rep_state_trajs_unsafe, title_suffix="", ax=axes_unsafe[0])
+    axes_unsafe[0].set_title("State trajectories (unsafe $x_0$)")
+
+    plot_gap_trajectories(pl_params, rep_gap_trajs_unsafe, title_suffix="", ax=axes_unsafe[1])
+    axes_unsafe[1].set_title("Gap evolution (unsafe $x_0$)")
+
+    plot_closure_trajectories(pl_params, rep_closure_trajs_unsafe, title_suffix="", ax=axes_unsafe[2])
+    axes_unsafe[2].set_title("Closure values (unsafe $x_0$)")
+
+    fig_comb_unsafe.suptitle(
+        "Two-car platoon with linear Path-Complete Closure Certificates (unsafe initial condition, persistence)",
+        y=1.05,
+        fontsize=12,
+    )
+    fig_comb_unsafe.tight_layout()
+    fig_comb_unsafe.savefig(
+        os.path.join(figs_dir, "platoon_combined_linear_unsafe.pdf"),
+        bbox_inches="tight"
+    )
+
+    # Show figures interactively (optional)
     plt.show()
 
 
