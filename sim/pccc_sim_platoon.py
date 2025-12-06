@@ -347,14 +347,14 @@ def plot_state_trajectories(pl_params, trajectories, title_suffix="", ax=None):
 
     # Safe band: gap >= d_safe => x2 >= x1 + d_safe
     x2_safe_bottom = np.minimum(x1_line + d_safe, x2_band_max)
-    ax.fill_between(
-        x1_line,
-        x2_safe_bottom,     # x2 = x1 + d_safe
-        x2_band_max,        # up to domain max
-        color="green",
-        alpha=0.15,
-        label=r"safe band",
-    )
+    #ax.fill_between(
+    #    x1_line,
+    #    x2_safe_bottom,     # x2 = x1 + d_safe
+    #    x2_band_max,        # up to domain max
+    #    color="green",
+    #    alpha=0.15,
+    #    label=r"safe band",
+    #)
 
     # Plot diagonal (g = 0) over domain
     ax.plot(x1_line, x1_line, "k--", linewidth=1, label=r"$g = 0$")
@@ -449,13 +449,13 @@ def plot_gap_trajectories(pl_params, trajectories, title_suffix="", ax=None):
     )
 
     # Shaded safe band (horizontal)
-    ax.axhspan(
-        min(d_safe, g_max_dom),
-        g_max_dom,
-        color="green",
-        alpha=0.05,
-        label=r"safe gap region",
-    )
+    #ax.axhspan(
+    #    min(d_safe, g_max_dom),
+    #    g_max_dom,
+    #    color="green",
+    #    alpha=0.05,
+    #    label=r"safe gap region",
+    #)
 
     # Plot trajectories (clipped gaps)
     for g, traj in gap_series:
@@ -469,13 +469,13 @@ def plot_gap_trajectories(pl_params, trajectories, title_suffix="", ax=None):
         )
 
     # Reference lines for d_safe, d_unsafe (clipped to the domain gap)
-    ax.axhline(
-        min(d_safe, g_max_dom),
-        linestyle="--",
-        color="green",
-        linewidth=1,
-        label=r"$d_{\mathrm{safe}}$",
-    )
+    #ax.axhline(
+    #    min(d_safe, g_max_dom),
+    #    linestyle="--",
+    #    color="green",
+    #    linewidth=1,
+    #    label=r"$d_{\mathrm{safe}}$",
+    #)
     ax.axhline(
         min(d_unsafe, g_max_dom),
         linestyle="--",
