@@ -353,7 +353,7 @@ def plot_state_trajectories(pl_params, trajectories, title_suffix="", ax=None):
         x2_band_max,        # up to domain max
         color="green",
         alpha=0.15,
-        label=r"safe band ($g \geq d_{\mathrm{safe}}$)",
+        label=r"safe band",
     )
 
     # Plot diagonal (g = 0) over domain
@@ -454,7 +454,7 @@ def plot_gap_trajectories(pl_params, trajectories, title_suffix="", ax=None):
         g_max_dom,
         color="green",
         alpha=0.05,
-        label=r"safe gap region ($g \geq d_{\mathrm{safe}}$)",
+        label=r"safe gap region",
     )
 
     # Plot trajectories (clipped gaps)
