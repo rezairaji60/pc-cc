@@ -44,3 +44,6 @@ dist/
 
 # Logs
 *.log
+
+# Julia binary result artifacts
+*.jld2
