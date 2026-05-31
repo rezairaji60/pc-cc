@@ -1,0 +1,49 @@
+poly deg := 2	
+status: SLOW_PROGRESS
+aut_state = 0
+k =1
+$-0.0179 \cdot x^{2} + 0.004408 \cdot x \cdot y - 0.019039 \cdot y^{2} + 0.001061 \cdot x + 0.000732 \cdot y - 0.186189$
+k =2
+$-0.016884 \cdot x^{2} + 0.005738 \cdot x \cdot y - 0.018248 \cdot y^{2} + 0.001021 \cdot x + 0.000497 \cdot y - 0.218463$
+k =3
+$-0.018009 \cdot x^{2} + 0.00618 \cdot x \cdot y - 0.019039 \cdot y^{2} + 0.00056 \cdot x + 0.000446 \cdot y - 0.276695$
+k =4
+$-0.018696 \cdot x^{2} + 0.0056 \cdot x \cdot y - 0.019227 \cdot y^{2} + 0.000228 \cdot x - 0.000211 \cdot y - 0.75847$
+k =5
+$-0.017878 \cdot x^{2} + 0.00593 \cdot x \cdot y - 0.01841 \cdot y^{2} + 0.000273 \cdot x + 7.9e-5 \cdot y - 0.670914$
+k =6
+$-0.017779 \cdot x^{2} + 0.005968 \cdot x \cdot y - 0.018442 \cdot y^{2} + 0.000324 \cdot x + 0.000177 \cdot y - 0.536714$
+k =7
+$-0.019201 \cdot x^{2} + 0.006665 \cdot x \cdot y - 0.019764 \cdot y^{2} + 0.000188 \cdot x + 0.000464 \cdot y - 0.392835$
+aut_state = 1
+k =1
+$3.233579 \cdot x^{2} - 2.86427 \cdot x \cdot y + 0.464545 \cdot y^{2} - 19.056283 \cdot x + 7.890048 \cdot y + 27.337634$
+k =2
+$4.073746 \cdot x^{2} - 6.046827 \cdot x \cdot y + 2.03595 \cdot y^{2} - 28.917357 \cdot x + 20.48923 \cdot y + 49.71894$
+k =3
+$4.501639 \cdot x^{2} - 7.729166 \cdot x \cdot y + 2.339267 \cdot y^{2} - 34.274275 \cdot x + 25.595736 \cdot y + 60.793215$
+k =4
+$3.33971 \cdot x^{2} - 5.565251 \cdot x \cdot y + 2.068398 \cdot y^{2} - 24.56862 \cdot x + 19.361908 \cdot y + 43.077207$
+k =5
+$3.274891 \cdot x^{2} - 5.322823 \cdot x \cdot y + 1.988874 \cdot y^{2} - 23.796319 \cdot x + 18.539487 \cdot y + 41.566253$
+k =6
+$3.189974 \cdot x^{2} - 5.230636 \cdot x \cdot y + 1.961315 \cdot y^{2} - 23.301682 \cdot x + 18.265092 \cdot y + 40.971683$
+k =7
+$1.529211 \cdot x^{2} - 3.546851 \cdot x \cdot y + 1.239792 \cdot y^{2} - 13.736977 \cdot x + 12.680841 \cdot y + 27.01093$
+aut_state = 2
+k =1
+$86.126503 \cdot x^{2} - 13.225466 \cdot x \cdot y + 87.571849 \cdot y^{2} - 548.63004 \cdot x - 268.442927 \cdot y + 1133.967429$
+k =2
+$66.301714 \cdot x^{2} + 20.892694 \cdot x \cdot y + 81.440875 \cdot y^{2} - 482.334781 \cdot x - 205.067895 \cdot y + 915.938649$
+k =3
+$54.925155 \cdot x^{2} + 32.915028 \cdot x \cdot y + 74.924766 \cdot y^{2} - 399.763067 \cdot x - 143.298636 \cdot y + 719.185769$
+k =4
+$43.436741 \cdot x^{2} + 32.835729 \cdot x \cdot y + 67.981692 \cdot y^{2} - 303.147756 \cdot x - 88.077445 \cdot y + 525.917765$
+k =5
+$30.965433 \cdot x^{2} + 26.631121 \cdot x \cdot y + 59.596264 \cdot y^{2} - 204.160223 \cdot x - 40.782281 \cdot y + 345.075843$
+k =6
+$17.84931 \cdot x^{2} + 16.81622 \cdot x \cdot y + 46.848738 \cdot y^{2} - 110.743894 \cdot x - 1.795048 \cdot y + 187.236682$
+k =7
+$3.442243 \cdot x^{2} + 1.759724 \cdot x \cdot y + 13.22847 \cdot y^{2} - 26.972366 \cdot x + 15.471462 \cdot y + 58.315356$
+time: 8.575913801
+

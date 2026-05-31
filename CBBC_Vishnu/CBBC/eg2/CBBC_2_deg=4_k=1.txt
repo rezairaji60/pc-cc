@@ -1,0 +1,19 @@
+poly deg := 4	
+status: SLOW_PROGRESS
+aut_state = 0
+k =1
+$0.008683 \cdot x^{4} - 0.018719 \cdot x^{3} \cdot y + 0.021742 \cdot x^{2} \cdot y^{2} - 0.007636 \cdot x \cdot y^{3} + 0.009337 \cdot y^{4} + 0.00033 \cdot x^{3} - 0.000983 \cdot x^{2} \cdot y + 0.000557 \cdot x \cdot y^{2} - 0.000506 \cdot y^{3} - 0.131714 \cdot x^{2} + 0.079786 \cdot x \cdot y - 0.13692 \cdot y^{2} - 1.0e-6 \cdot x + 6.4e-5 \cdot y + 1.061323$
+k =2
+$0.008481 \cdot x^{4} - 0.014707 \cdot x^{3} \cdot y + 0.019674 \cdot x^{2} \cdot y^{2} - 0.005016 \cdot x \cdot y^{3} + 0.00831 \cdot y^{4} + 0.00034 \cdot x^{3} - 0.000607 \cdot x^{2} \cdot y + 0.000532 \cdot x \cdot y^{2} - 0.000251 \cdot y^{3} - 0.117004 \cdot x^{2} + 0.06053 \cdot x \cdot y - 0.119396 \cdot y^{2} - 4.0e-6 \cdot x + 2.8e-5 \cdot y + 0.428414$
+aut_state = 1
+k =1
+$7.049467 \cdot x^{4} - 10.397696 \cdot x^{3} \cdot y + 5.994981 \cdot x^{2} \cdot y^{2} - 1.006359 \cdot x \cdot y^{3} + 0.167644 \cdot y^{4} - 89.406032 \cdot x^{3} + 99.443676 \cdot x^{2} \cdot y - 35.711953 \cdot x \cdot y^{2} + 2.829602 \cdot y^{3} + 424.974029 \cdot x^{2} - 316.217915 \cdot x \cdot y + 52.82782 \cdot y^{2} - 899.523089 \cdot x + 334.385586 \cdot y + 717.325955$
+k =2
+$5.297741 \cdot x^{4} - 14.10908 \cdot x^{3} \cdot y + 12.599116 \cdot x^{2} \cdot y^{2} - 3.796546 \cdot x \cdot y^{3} + 0.500251 \cdot y^{4} - 77.541308 \cdot x^{3} + 148.674884 \cdot x^{2} \cdot y - 83.682888 \cdot x \cdot y^{2} + 12.900528 \cdot y^{3} + 417.946622 \cdot x^{2} - 516.252358 \cdot x \cdot y + 139.290287 \cdot y^{2} - 989.222685 \cdot x + 592.129575 \cdot y + 870.337261$
+aut_state = 2
+k =1
+$65.177697 \cdot x^{4} - 219.658727 \cdot x^{3} \cdot y + 660.192155 \cdot x^{2} \cdot y^{2} - 792.069471 \cdot x \cdot y^{3} + 423.873623 \cdot y^{4} - 462.050101 \cdot x^{3} - 163.131726 \cdot x^{2} \cdot y + 2.231962 \cdot x \cdot y^{2} - 523.832493 \cdot y^{3} + 2366.82505 \cdot x^{2} + 331.968005 \cdot x \cdot y + 1466.542737 \cdot y^{2} - 5145.896374 \cdot x - 1995.967188 \cdot y + 4889.316625$
+k =2
+$28.79805 \cdot x^{4} + 39.748249 \cdot x^{3} \cdot y + 8.742799 \cdot x^{2} \cdot y^{2} - 4.168633 \cdot x \cdot y^{3} - 5.657331 \cdot y^{4} - 403.767878 \cdot x^{3} - 367.245525 \cdot x^{2} \cdot y - 45.795489 \cdot x \cdot y^{2} + 21.586498 \cdot y^{3} + 2089.323877 \cdot x^{2} + 1141.73885 \cdot x \cdot y + 99.03324 \cdot y^{2} - 4761.331307 \cdot x - 1272.573259 \cdot y + 4084.856653$
+time: 2.368657385
+
