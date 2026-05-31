@@ -25,7 +25,7 @@
   ],
   "feasible_certificate_saved": false,
   "implication_multipliers": {
-    "IMP_MULT_P2": 0.0,
+    "IMP_MULT_P2": 0.001,
     "IMP_MULT_P3_A": 0.0,
     "IMP_MULT_P3_B": 0.0
   },
@@ -51,5 +51,5 @@
   "unsafe_set": {
     "gap_max": 0.4
   },
-  "wf_decrease": 0.0001
+  "wf_decrease": 0.001
 }

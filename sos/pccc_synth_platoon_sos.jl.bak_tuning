@@ -44,11 +44,11 @@ const MOI = JuMP.MOI
 # ---------------------------------------------------------------------
 
 # Strict ranking decrease in the well-foundedness implication.
-const WF_DEC = 1.0E-005
+const WF_DEC = 1.0e-3
 
-const IMP_MULT_P2   = 1.0E-003
-const IMP_MULT_P3_A = 0.0E+000
-const IMP_MULT_P3_B = 0.0E+000
+const IMP_MULT_P2   = 0.0
+const IMP_MULT_P3_A = 0.0
+const IMP_MULT_P3_B = 0.0
 
 const RESULTS_DIR = "results"
 const OUT_JLD2 = joinpath(RESULTS_DIR, "pccc_synth_platoon_sos.jld2")
