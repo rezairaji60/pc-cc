@@ -1,0 +1,37 @@
+poly deg := 2	
+status: SLOW_PROGRESS
+aut_state = 0
+k =1
+$0.042184 \cdot x^{2} - 0.003544 \cdot x \cdot y + 0.030636 \cdot y^{2} + 0.008496 \cdot x + 0.007695 \cdot y - 3.160935$
+k =2
+$0.031812 \cdot x^{2} - 0.008578 \cdot x \cdot y + 0.012774 \cdot y^{2} + 0.021265 \cdot x + 0.002767 \cdot y - 2.501654$
+k =3
+$0.00144 \cdot x^{2} + 0.005624 \cdot x \cdot y - 0.00466 \cdot y^{2} + 0.004322 \cdot x + 0.006497 \cdot y - 1.605343$
+k =4
+$-0.010173 \cdot x^{2} - 0.001818 \cdot x \cdot y - 0.004066 \cdot y^{2} - 0.012571 \cdot x - 0.01653 \cdot y - 1.012333$
+k =5
+$-0.03191 \cdot x^{2} + 0.01987 \cdot x \cdot y - 0.028236 \cdot y^{2} - 0.007041 \cdot x + 0.008732 \cdot y - 0.084424$
+aut_state = 1
+k =1
+$2.836217 \cdot x^{2} - 2.337673 \cdot x \cdot y + 0.422154 \cdot y^{2} - 16.345786 \cdot x + 6.56369 \cdot y + 21.203901$
+k =2
+$3.471932 \cdot x^{2} - 4.968535 \cdot x \cdot y + 1.717124 \cdot y^{2} - 24.665474 \cdot x + 17.239177 \cdot y + 41.309755$
+k =3
+$3.77114 \cdot x^{2} - 6.275556 \cdot x \cdot y + 1.959236 \cdot y^{2} - 28.660284 \cdot x + 21.133801 \cdot y + 50.45934$
+k =4
+$2.862769 \cdot x^{2} - 4.667211 \cdot x \cdot y + 1.728931 \cdot y^{2} - 21.396096 \cdot x + 16.610107 \cdot y + 38.317995$
+k =5
+$1.431653 \cdot x^{2} - 2.922896 \cdot x \cdot y + 1.245276 \cdot y^{2} - 12.064846 \cdot x + 10.897173 \cdot y + 23.616762$
+aut_state = 2
+k =1
+$65.074597 \cdot x^{2} - 13.667676 \cdot x \cdot y + 83.305445 \cdot y^{2} - 419.202491 \cdot x - 253.380773 \cdot y + 932.63365$
+k =2
+$44.50795 \cdot x^{2} + 20.64762 \cdot x \cdot y + 74.856282 \cdot y^{2} - 340.820158 \cdot x - 195.054471 \cdot y + 692.139255$
+k =3
+$32.331483 \cdot x^{2} + 31.543977 \cdot x \cdot y + 64.937726 \cdot y^{2} - 245.279436 \cdot x - 133.480924 \cdot y + 465.519355$
+k =4
+$19.485183 \cdot x^{2} + 26.307669 \cdot x \cdot y + 50.477425 \cdot y^{2} - 136.864223 \cdot x - 69.894837 \cdot y + 250.172433$
+k =5
+$3.829744 \cdot x^{2} + 4.571342 \cdot x \cdot y + 13.728268 \cdot y^{2} - 27.877265 \cdot x - 1.508024 \cdot y + 64.473602$
+time: 4.644551352
+
