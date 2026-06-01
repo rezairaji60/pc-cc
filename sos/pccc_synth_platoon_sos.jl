@@ -44,11 +44,11 @@ const MOI = JuMP.MOI
 # ---------------------------------------------------------------------
 
 # Strict ranking decrease in the well-foundedness implication.
-const WF_DEC = 1.0E-005
+const WF_DEC = 1.0e-6
 
-const IMP_MULT_P2   = 1.0E-003
-const IMP_MULT_P3_A = 0.0E+000
-const IMP_MULT_P3_B = 0.0E+000
+const IMP_MULT_P2   = 0.001
+const IMP_MULT_P3_A = 0.01
+const IMP_MULT_P3_B = 0.01
 
 const RESULTS_DIR = "results"
 const OUT_JLD2 = joinpath(RESULTS_DIR, "pccc_synth_platoon_sos.jld2")
@@ -191,10 +191,10 @@ end
 function make_model_with_scs()
     optimizer = optimizer_with_attributes(
         SCS.Optimizer,
-        "eps_abs" => 1.0e-6,
-        "eps_rel" => 1.0e-6,
-        "eps_infeas" => 1.0e-7,
-        "max_iters" => 500000,
+        "eps_abs" => 1.0e-8,
+        "eps_rel" => 1.0e-8,
+        "eps_infeas" => 1.0e-9,
+        "max_iters" => 2000000,
         "verbose" => 1,
     )
 
