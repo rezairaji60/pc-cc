@@ -37,8 +37,8 @@
     1,
     2
   ],
-  "objective": null,
-  "primal_status": "INFEASIBLE_POINT",
+  "objective": 0.0,
+  "primal_status": "FEASIBLE_POINT",
   "solver": "scs",
   "state_domain": {
     "gap_min": 0.0,
@@ -47,7 +47,7 @@
     "x2_max": 5.1,
     "x2_min": 0.0
   },
-  "status": "INFEASIBLE",
+  "status": "ITERATION_LIMIT",
   "unsafe_set": {
     "gap_max": 0.4
   },

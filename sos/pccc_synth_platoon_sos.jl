@@ -46,9 +46,53 @@ const MOI = JuMP.MOI
 # Strict ranking decrease in the well-foundedness implication.
 const WF_DEC = 1.0e-6
 
+# --------------------------------------------------------------------------
+# Implication multiplier configuration
+#
+# The closure certificate C[p,q](x,y) remains quadratic. These settings only
+# control the S-procedure multipliers used inside implication SOS constraints.
+#
+# USE_SOS_PREMISE_MULTIPLIERS = false:
+#     Use the old fixed scalar multipliers:
+#
+#         conclusion - IMP_MULT_P2 * premise
+#
+#     and:
+#
+#         conclusion - IMP_MULT_P3_A * premise1
+#                    - IMP_MULT_P3_B * premise2
+#
+# USE_SOS_PREMISE_MULTIPLIERS = true:
+#     Replace the fixed constants by SOS polynomial multipliers.
+#
+# Important:
+#     If C and the SOS premise multipliers are both decision variables, the
+#     resulting model is bilinear. Therefore this mode should ultimately be
+#     used inside an alternating fixed-C / fixed-multiplier scheme.
+# --------------------------------------------------------------------------
+
+const USE_SOS_PREMISE_MULTIPLIERS = false
+
+# Old fixed scalar multipliers. These are kept as a baseline and fallback.
 const IMP_MULT_P2   = 0.001
 const IMP_MULT_P3_A = 0.01
 const IMP_MULT_P3_B = 0.01
+
+# Degree of SOS premise multipliers.
+#
+# Degree 0:
+#     s(x) is just a nonnegative scalar decision variable.
+#
+# Degree 2:
+#     s(x) is a quadratic SOS polynomial.
+#
+# Start with degree 0. Only move to degree 2 after the scalar-SOS version
+# is implemented and tested.
+const P2_PREMISE_MULT_DEG = 0
+const P3_PREMISE_MULT_DEG = 0
+
+const IMP_MULTIPLIER_MODE =
+    USE_SOS_PREMISE_MULTIPLIERS ? "sos_premise_multipliers" : "fixed_scalar_multipliers"
 
 const RESULTS_DIR = "results"
 const OUT_JLD2 = joinpath(RESULTS_DIR, "pccc_synth_platoon_sos.jld2")
@@ -175,6 +219,18 @@ nbasis = length(basis_xy)
 println("Using quadratic template for C[p,q](x,y).")
 println("Number of basis monomials = ", nbasis)
 
+println("Implication multiplier mode = ", IMP_MULTIPLIER_MODE)
+
+if USE_SOS_PREMISE_MULTIPLIERS
+    println("P2 premise multiplier degree = ", P2_PREMISE_MULT_DEG)
+    println("P3 premise multiplier degree = ", P3_PREMISE_MULT_DEG)
+else
+    println("Fixed implication multipliers:")
+    println("  IMP_MULT_P2   = ", IMP_MULT_P2)
+    println("  IMP_MULT_P3_A = ", IMP_MULT_P3_A)
+    println("  IMP_MULT_P3_B = ", IMP_MULT_P3_B)
+end
+
 # Solver constructors
 # ---------------------------------------------------------------------
 
@@ -270,6 +326,28 @@ function add_domain_sos_constraint!(model, poly_nonnegative, domain_cons; label=
     return
 end
 
+function new_sos_multiplier!(model, vars, degree)
+    @assert degree >= 0
+    @assert iseven(degree) "SOS multiplier degree should be even, e.g. 0 or 2."
+
+    mult_basis = monomials(vars, 0:degree)
+
+    # Anonymous JuMP coefficient vector.
+    # Do not use @variable(model, c[...]) here, because repeated calls would
+    # try to register the same JuMP name c in the model.
+    coeffs = @variable(
+        model,
+        [1:length(mult_basis)],
+        base_name = string(gensym(:sosmult))
+    )
+
+    s = sum(coeffs[i] * mult_basis[i] for i in 1:length(mult_basis))
+
+    @constraint(model, s in SOSCone())
+
+    return s
+end
+
 function add_implication_sos_constraint!(
     model,
     conclusion_poly,
@@ -281,7 +359,13 @@ function add_implication_sos_constraint!(
 
     mu = @variable(model, [1:m], lower_bound = 0.0)
 
-    certificate_poly = conclusion_poly - IMP_MULT_P2 * premise_poly
+    if USE_SOS_PREMISE_MULTIPLIERS
+        vars_p2 = [x1, x2, y1, y2]
+        s_premise = new_sos_multiplier!(model, vars_p2, P2_PREMISE_MULT_DEG)
+        certificate_poly = conclusion_poly - s_premise * premise_poly
+    else
+        certificate_poly = conclusion_poly - IMP_MULT_P2 * premise_poly
+    end
 
     for i in 1:m
         certificate_poly -= mu[i] * domain_cons[i]
@@ -304,10 +388,22 @@ function add_two_premise_implication_sos_constraint!(
 
     mu = @variable(model, [1:m], lower_bound = 0.0)
 
-    certificate_poly =
-        conclusion_poly -
-        IMP_MULT_P3_A * premise1_poly -
-        IMP_MULT_P3_B * premise2_poly
+    if USE_SOS_PREMISE_MULTIPLIERS
+        vars_p3 = [x01, x02, y1, y2, z1, z2]
+
+        s_premise1 = new_sos_multiplier!(model, vars_p3, P3_PREMISE_MULT_DEG)
+        s_premise2 = new_sos_multiplier!(model, vars_p3, P3_PREMISE_MULT_DEG)
+
+        certificate_poly =
+            conclusion_poly -
+            s_premise1 * premise1_poly -
+            s_premise2 * premise2_poly
+    else
+        certificate_poly =
+            conclusion_poly -
+            IMP_MULT_P3_A * premise1_poly -
+            IMP_MULT_P3_B * premise2_poly
+    end
 
     for i in 1:m
         certificate_poly -= mu[i] * domain_cons[i]
@@ -428,14 +524,10 @@ function build_sos_problem(model)
     end
 
     # -----------------------------------------------------------------
-    # Regularization objective.
+    # Pure feasibility objective.
     # -----------------------------------------------------------------
 
-    @objective(
-        model,
-        Min,
-        sum(coeff[p, q, k]^2 for p in nodes for q in nodes for k in 1:nbasis)
-    )
+    @objective(model, Min, 0.0)
 
     return coeff, C, num_sos_constraints
 end
@@ -697,16 +789,24 @@ function main()
         println("       Termination status = ", termination_status(model))
         println("       Primal status      = ", primal_status(model))
         println()
+        println("Current implication multiplier mode = ", IMP_MULTIPLIER_MODE)
         println("Current fixed implication multipliers:")
         println("  IMP_MULT_P2   = ", IMP_MULT_P2)
         println("  IMP_MULT_P3_A = ", IMP_MULT_P3_A)
         println("  IMP_MULT_P3_B = ", IMP_MULT_P3_B)
         println()
         println("Recommended next trials:")
-        println("  1) Set all three multipliers to 0.1 and rerun.")
-        println("  2) If still infeasible, set all three to 0.01 and rerun.")
-        println("  3) If still infeasible, set all three to 0.001 and rerun.")
-        println("  4) Then try asymmetric settings, e.g. P2=0.01, P3_A=P3_B=0.001.")
+        if USE_SOS_PREMISE_MULTIPLIERS
+            println("  1) If this was a direct joint solve, remember that C and SOS premise multipliers make the problem bilinear.")
+            println("  2) If the solver errors or behaves poorly, move to an alternating fixed-C / fixed-multiplier implementation.")
+            println("  3) Start with P2_PREMISE_MULT_DEG = 0 and P3_PREMISE_MULT_DEG = 0.")
+            println("  4) Then try P2_PREMISE_MULT_DEG = 0 and P3_PREMISE_MULT_DEG = 2.")
+        else
+            println("  1) Step 2/3/4/5 infrastructure is installed and compiles.")
+            println("  2) Next test: set USE_SOS_PREMISE_MULTIPLIERS = true.")
+            println("  3) Keep P2_PREMISE_MULT_DEG = 0 and P3_PREMISE_MULT_DEG = 0 for the first SOS-multiplier test.")
+            println("  4) If the direct model fails because of bilinearity, implement the alternating fixed-C / fixed-multiplier scheme.")
+        end
 
         save_status_only(model, solver_used)
 
