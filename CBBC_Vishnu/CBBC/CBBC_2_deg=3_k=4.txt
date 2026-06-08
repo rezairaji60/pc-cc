@@ -1,0 +1,37 @@
+poly deg := 3	
+status: SLOW_PROGRESS
+aut_state = 0
+k =1
+$0.652203 + 0.000501 \cdot y + 0.000139 \cdot x - 0.013703 \cdot y^{2} + 0.004716 \cdot x \cdot y - 0.013157 \cdot x^{2} - 0.001125 \cdot y^{3} + 0.002026 \cdot x \cdot y^{2} - 0.003143 \cdot x^{2} \cdot y + 0.000696 \cdot x^{3}$
+k =2
+$0.462493 + 0.000272 \cdot y - 0.00017 \cdot x - 0.01272 \cdot y^{2} + 0.004385 \cdot x \cdot y - 0.012275 \cdot x^{2} - 0.00045 \cdot y^{3} + 0.001998 \cdot x \cdot y^{2} - 0.001455 \cdot x^{2} \cdot y + 0.000966 \cdot x^{3}$
+k =3
+$0.240697 + 0.000269 \cdot y - 0.00018 \cdot x - 0.012683 \cdot y^{2} + 0.004375 \cdot x \cdot y - 0.012245 \cdot x^{2} - 0.000434 \cdot y^{3} + 0.002013 \cdot x \cdot y^{2} - 0.001402 \cdot x^{2} \cdot y + 0.000975 \cdot x^{3}$
+k =4
+$0.0288 + 0.000285 \cdot y - 0.000108 \cdot x - 0.012878 \cdot y^{2} + 0.004444 \cdot x \cdot y - 0.012429 \cdot x^{2} - 0.000523 \cdot y^{3} + 0.002066 \cdot x \cdot y^{2} - 0.001585 \cdot x^{2} \cdot y + 0.000923 \cdot x^{3}$
+k =5
+$-0.066562 + 0.000244 \cdot y - 0.000148 \cdot x - 0.012815 \cdot y^{2} + 0.0044 \cdot x \cdot y - 0.012374 \cdot x^{2} - 0.000381 \cdot y^{3} + 0.00186 \cdot x \cdot y^{2} - 0.001311 \cdot x^{2} \cdot y + 0.000908 \cdot x^{3}$
+aut_state = 1
+k =1
+$68.797367 + 22.027301 \cdot y - 62.969199 \cdot x + 1.460934 \cdot y^{2} - 12.751698 \cdot x \cdot y + 19.432664 \cdot x^{2} - 0.11622 \cdot y^{3} - 0.419424 \cdot x \cdot y^{2} + 1.797731 \cdot x^{2} \cdot y - 2.013959 \cdot x^{3}$
+k =2
+$85.46477 + 37.587633 \cdot y - 69.691898 \cdot x + 5.527844 \cdot y^{2} - 18.195191 \cdot x \cdot y + 19.562113 \cdot x^{2} + 0.185975 \cdot y^{3} - 1.266168 \cdot x \cdot y^{2} + 2.098344 \cdot x^{2} \cdot y - 1.926236 \cdot x^{3}$
+k =3
+$86.921823 + 41.294173 \cdot y - 69.297156 \cdot x + 6.727725 \cdot y^{2} - 19.725009 \cdot x \cdot y + 18.897488 \cdot x^{2} + 0.276637 \cdot y^{3} - 1.607062 \cdot x \cdot y^{2} + 2.189726 \cdot x^{2} \cdot y - 1.817335 \cdot x^{3}$
+k =4
+$74.131399 + 33.564623 \cdot y - 61.365933 \cdot x + 5.197613 \cdot y^{2} - 16.167493 \cdot x \cdot y + 17.683304 \cdot x^{2} + 0.198001 \cdot y^{3} - 1.185236 \cdot x \cdot y^{2} + 1.870502 \cdot x^{2} \cdot y - 1.816885 \cdot x^{3}$
+k =5
+$55.744585 + 27.58072 \cdot y - 50.291156 \cdot x + 5.657026 \cdot y^{2} - 13.876867 \cdot x \cdot y + 16.428097 \cdot x^{2} + 0.413305 \cdot y^{3} - 1.372981 \cdot x \cdot y^{2} + 1.746756 \cdot x^{2} \cdot y - 1.962863 \cdot x^{3}$
+aut_state = 2
+k =1
+$3464.925032 - 690.603827 \cdot y - 2671.206924 \cdot x + 176.745133 \cdot y^{2} + 183.449125 \cdot x \cdot y + 734.405233 \cdot x^{2} - 8.942147 \cdot y^{3} - 23.634678 \cdot x \cdot y^{2} - 16.288423 \cdot x^{2} \cdot y - 68.059876 \cdot x^{3}$
+k =2
+$2924.208728 - 319.749138 \cdot y - 2296.284241 \cdot x + 111.082117 \cdot y^{2} + 38.790728 \cdot x \cdot y + 617.643593 \cdot x^{2} - 5.133048 \cdot y^{3} - 5.463731 \cdot x \cdot y^{2} + 4.614652 \cdot x^{2} \cdot y - 56.194791 \cdot x^{3}$
+k =3
+$2142.398354 - 167.502292 \cdot y - 1750.944939 \cdot x + 72.868234 \cdot y^{2} + 32.688465 \cdot x \cdot y + 477.343956 \cdot x^{2} - 3.628024 \cdot y^{3} + 5.108726 \cdot x \cdot y^{2} + 2.103804 \cdot x^{2} \cdot y - 43.424558 \cdot x^{3}$
+k =4
+$1332.583291 - 53.702072 \cdot y - 1119.594506 \cdot x + 38.751862 \cdot y^{2} + 21.231408 \cdot x \cdot y + 312.497739 \cdot x^{2} - 2.715239 \cdot y^{3} + 11.532986 \cdot x \cdot y^{2} + 1.256606 \cdot x^{2} \cdot y - 28.916955 \cdot x^{3}$
+k =5
+$514.399577 + 5.598577 \cdot y - 452.195041 \cdot x - 10.29227 \cdot y^{2} - 0.892794 \cdot x \cdot y + 133.608397 \cdot x^{2} - 0.890831 \cdot y^{3} + 11.698626 \cdot x \cdot y^{2} + 2.174907 \cdot x^{2} \cdot y - 13.13722 \cdot x^{3}$
+time: 4.693911743
+

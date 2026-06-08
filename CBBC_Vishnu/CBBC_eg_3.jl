@@ -68,16 +68,16 @@ function CBBC_comp(deg,k)
         push!(B_monom_list, Bb)
     end
 
-    model, _ = add_psatz!(model, -B_templates[1], vars, g_init, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
-    #model,info11 = add_psatz!(model,  B - eps_1, vars, g_unsafe_1, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
+    _ = add_psatz!(model, -B_templates[1], vars, g_init, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
+    #model,info11 = add_psatz!(model,  B - eps_1, vars, g_unsafe_1, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
     # 2nd condition for B_0, unsafe states
-    model, _ = add_psatz!(model, B_templates[k+1] - 2*ϵ, vars, g_state_set, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
+    _ = add_psatz!(model, B_templates[k+1] - 2*ϵ, vars, g_state_set, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
     for i = 1:k
-        model, _ = add_psatz!(model,B_templates[i] - B_f_list[i+1], vars, g_finite_visit, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
+        _ = add_psatz!(model,B_templates[i] - B_f_list[i+1], vars, g_finite_visit, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
     end
     for i = 1:k+1
         for t in g_finit_visit_comp
-                    model, _ = add_psatz!(model,B_templates[i] - B_f_list[i], vars, t, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
+                    _ = add_psatz!(model,B_templates[i] - B_f_list[i], vars, t, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
         end
     end
     optimize!(model) #solve for coefficients
@@ -95,9 +95,9 @@ Barrier_list = []
 end
 
 max_deg = 6
-k = 8
+k = 2
 for tk = 1:k
-    file = open("./systems/CBBC/eg3/CBBC_3"*string(tk)*".txt", "w");
+    file = open("./CBBC/CBBC_3"*string(tk)*".txt", "w");
     for deg = 1:max_deg
         stats = @timed data = CBBC_comp(deg, tk)
         status, BC_list = data

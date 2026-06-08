@@ -1,0 +1,19 @@
+poly deg := 1	
+status: SLOW_PROGRESS
+aut_state = 0
+k =1
+$0.213967 + 0.001865 \cdot y - 0.000387 \cdot x$
+k =2
+$-0.007217 - 0.000604 \cdot y - 0.000231 \cdot x$
+aut_state = 1
+k =1
+$1.162443 + 0.038143 \cdot y - 0.413441 \cdot x$
+k =2
+$1.399728 + 0.18297 \cdot y - 0.51517 \cdot x$
+aut_state = 2
+k =1
+$14.466836 - 1.920113 \cdot y - 3.622488 \cdot x$
+k =2
+$5.427132 - 0.254397 \cdot y - 1.784735 \cdot x$
+time: 1.266780454
+

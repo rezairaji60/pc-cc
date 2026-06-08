@@ -1,0 +1,19 @@
+poly deg := 3	
+status: SLOW_PROGRESS
+aut_state = 0
+k =1
+$0.231292 + 0.00033 \cdot y + 1.2e-5 \cdot x - 0.007619 \cdot y^{2} + 0.002591 \cdot x \cdot y - 0.007234 \cdot x^{2} - 0.000541 \cdot y^{3} + 0.001477 \cdot x \cdot y^{2} - 0.001589 \cdot x^{2} \cdot y + 0.000844 \cdot x^{3}$
+k =2
+$-0.04299 + 0.000482 \cdot y - 0.000122 \cdot x - 0.007581 \cdot y^{2} + 0.002738 \cdot x \cdot y - 0.007261 \cdot x^{2} - 1.5e-5 \cdot y^{3} + 0.00103 \cdot x \cdot y^{2} - 0.000425 \cdot x^{2} \cdot y + 0.00066 \cdot x^{3}$
+aut_state = 1
+k =1
+$54.186668 + 15.945096 \cdot y - 49.441081 \cdot x + 0.861016 \cdot y^{2} - 9.112542 \cdot x \cdot y + 14.971121 \cdot x^{2} - 0.090412 \cdot y^{3} - 0.218764 \cdot x \cdot y^{2} + 1.262968 \cdot x^{2} \cdot y - 1.501716 \cdot x^{3}$
+k =2
+$45.885176 + 19.629141 \cdot y - 41.293943 \cdot x + 3.397728 \cdot y^{2} - 10.092648 \cdot x \cdot y + 13.107735 \cdot x^{2} + 0.239979 \cdot y^{3} - 0.806009 \cdot x \cdot y^{2} + 1.29859 \cdot x^{2} \cdot y - 1.472859 \cdot x^{3}$
+aut_state = 2
+k =1
+$2073.644362 - 346.468568 \cdot y - 1647.00972 \cdot x + 84.375496 \cdot y^{2} + 88.835671 \cdot x \cdot y + 465.090405 \cdot x^{2} - 9.568783 \cdot y^{3} - 0.365608 \cdot x \cdot y^{2} - 13.712683 \cdot x^{2} \cdot y - 43.261865 \cdot x^{3}$
+k =2
+$895.215866 + 146.652715 \cdot y - 781.488086 \cdot x + 0.62755 \cdot y^{2} - 106.288779 \cdot x \cdot y + 231.611633 \cdot x^{2} - 2.633437 \cdot y^{3} + 5.452523 \cdot x \cdot y^{2} + 16.427108 \cdot x^{2} \cdot y - 23.132399 \cdot x^{3}$
+time: 1.466169046
+

@@ -76,31 +76,31 @@ for i in 0:2
 end
 
 for i in 0:2
-    model, _ = add_psatz!(model, -B_templates[i+1][1], vars, g_init, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)    
+    _ = add_psatz!(model, -B_templates[i+1][1], vars, g_init, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)    
 end
 for i in 1:2
-        model, _ = add_psatz!(model, B_templates[i+1][k+1] - 2*ϵ, vars, g_state_set, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
+       _ = add_psatz!(model, B_templates[i+1][k+1] - 2*ϵ, vars, g_state_set, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
 end
 
     for i = 1:(k)
-        model, _ = add_psatz!(model,B_templates[1][i] - B_f_list[2][i], vars, g_a, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
-        model, _ = add_psatz!(model,B_templates[2][i] - B_f_list[2][i+1], vars, g_a, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
-        model, _ = add_psatz!(model,B_templates[3][i] - B_f_list[3][i+1], vars, g_a, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
+        _ = add_psatz!(model,B_templates[1][i] - B_f_list[2][i], vars, g_a, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
+        _ = add_psatz!(model,B_templates[2][i] - B_f_list[2][i+1], vars, g_a, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
+        _ = add_psatz!(model,B_templates[3][i] - B_f_list[3][i+1], vars, g_a, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
 
-        model, _ = add_psatz!(model,B_templates[1][i] - B_f_list[2][i], vars, g_c, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
-        model, _ = add_psatz!(model,B_templates[2][i] - B_f_list[2][i+1], vars, g_c, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
-        model, _ = add_psatz!(model,B_templates[3][i] - B_f_list[2][i+1], vars, g_c, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
+        _ = add_psatz!(model,B_templates[1][i] - B_f_list[2][i], vars, g_c, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
+        _ = add_psatz!(model,B_templates[2][i] - B_f_list[2][i+1], vars, g_c, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
+        _ = add_psatz!(model,B_templates[3][i] - B_f_list[2][i+1], vars, g_c, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
 
         for t in g_b
-                    model, _ = add_psatz!(model,B_templates[2][i] - B_f_list[1][i+1], vars, t, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
-                    model, _ = add_psatz!(model,B_templates[1][i] - B_f_list[1][i], vars, t, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
-                    model, _ = add_psatz!(model,B_templates[3][i] - B_f_list[3][i+1], vars, t, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
+                    _ = add_psatz!(model,B_templates[2][i] - B_f_list[1][i+1], vars, t, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
+                    _ = add_psatz!(model,B_templates[1][i] - B_f_list[1][i], vars, t, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
+                    _ = add_psatz!(model,B_templates[3][i] - B_f_list[3][i+1], vars, t, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
         end
     end
-    model, _ = add_psatz!(model,B_templates[1][k+1] - B_f_list[2][k+1], vars, g_a, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
-    model, _ = add_psatz!(model,B_templates[1][k+1] - B_f_list[2][k+1], vars, g_c, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
+    _ = add_psatz!(model,B_templates[1][k+1] - B_f_list[2][k+1], vars, g_a, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
+    _ = add_psatz!(model,B_templates[1][k+1] - B_f_list[2][k+1], vars, g_c, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
     for t in g_b
-        model, _ = add_psatz!(model,B_templates[1][k+1] - B_f_list[1][k+1], vars, t, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, Groebnerbasis=true)
+        _ = add_psatz!(model,B_templates[1][k+1] - B_f_list[1][k+1], vars, t, [], div(deg+sos_tol,2), QUIET=true, CS=false, TS=false, GroebnerBasis=true)
     end
     optimize!(model) #solve for coefficients
     status = termination_status(model)  #all_variables(model)
@@ -121,10 +121,10 @@ end
 end
 
 max_deg = 6
-k = 8
+k = 2
 for tk = 1:k
 for deg = 1:max_deg
-    file = open("./systems/CBBC/eg2/CBBC_2_deg="*string(deg)*"_k="*string(tk)*".txt", "w");
+    file = open("./CBBC/CBBC_2_deg="*string(deg)*"_k="*string(tk)*".txt", "w");
     stats = @timed data = CBBC_comp(deg, tk)
     status, BC_list = data
     write(file, "poly deg := "*string(deg)*"\t"*"\n")
