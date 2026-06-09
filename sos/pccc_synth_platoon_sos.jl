@@ -746,6 +746,13 @@ function save_results(model, coeff_values, solver_name::Symbol)
 end
 
 function main()
+    if USE_SOS_PREMISE_MULTIPLIERS
+        error(
+            "USE_SOS_PREMISE_MULTIPLIERS=true creates a bilinear one-shot SOS model. " *
+            "Use sos/pccc_synth_platoon_sos_alternating.jl instead."
+        )
+    end
+
     model = nothing
     coeff = nothing
     C = nothing

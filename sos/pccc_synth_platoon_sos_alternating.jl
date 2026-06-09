@@ -70,6 +70,50 @@ const ACCEPT_PRIMALS = [
     MOI.NEARLY_FEASIBLE_POINT,
 ]
 
+const ALT_ACCEPT_TERMS = ACCEPT_TERMS
+
+# --------------------------------------------------------------------------
+# Seed acceptance policy
+#
+# For a final certificate, we only accept genuinely successful solver statuses.
+# For the bootstrap C seed, however, we allow SCS to provide a rough feasible
+# point when it reaches ITERATION_LIMIT with FEASIBLE_POINT. This seed is not
+# treated as a certificate; it is only used to initialize the alternating loop.
+# --------------------------------------------------------------------------
+
+const ALT_SEED_ACCEPT_TERMS = [
+    MOI.OPTIMAL,
+    MOI.ALMOST_OPTIMAL,
+    MOI.LOCALLY_SOLVED,
+    MOI.ALMOST_LOCALLY_SOLVED,
+    MOI.ITERATION_LIMIT,
+]
+
+function is_acceptable_solution(model)
+    return termination_status(model) in ALT_ACCEPT_TERMS
+end
+
+function is_acceptable_seed_solution(model)
+    term = termination_status(model)
+    prim = primal_status(model)
+
+    if !has_values(model)
+        return false
+    end
+
+    if term in ALT_ACCEPT_TERMS && prim in ACCEPT_PRIMALS
+        return true
+    end
+
+    # Bootstrap only: allow an SCS iterate as an initialization seed.
+    # This is not a proof certificate.
+    if term == MOI.ITERATION_LIMIT && prim == MOI.FEASIBLE_POINT
+        return true
+    end
+
+    return false
+end
+
 # ---------------------------------------------------------------------
 # Polynomial variables
 # ---------------------------------------------------------------------
@@ -355,6 +399,42 @@ function fixed_multiplier_poly(mult::SOSMultiplierFixed)
     return sum(mult.coeffs[i] * mult.basis[i] for i in 1:length(mult.basis))
 end
 
+function fixed_p2_multiplier_poly_or_default(mult_fixed, key)
+    if mult_fixed === nothing
+        return IMP_MULT_P2
+    end
+
+    if !haskey(mult_fixed.p2, key)
+        return IMP_MULT_P2
+    end
+
+    return fixed_multiplier_poly(mult_fixed.p2[key])
+end
+
+function fixed_p3a_multiplier_poly_or_default(mult_fixed, key)
+    if mult_fixed === nothing
+        return IMP_MULT_P3_A
+    end
+
+    if !haskey(mult_fixed.p3a, key)
+        return IMP_MULT_P3_A
+    end
+
+    return fixed_multiplier_poly(mult_fixed.p3a[key])
+end
+
+function fixed_p3b_multiplier_poly_or_default(mult_fixed, key)
+    if mult_fixed === nothing
+        return IMP_MULT_P3_B
+    end
+
+    if !haskey(mult_fixed.p3b, key)
+        return IMP_MULT_P3_B
+    end
+
+    return fixed_multiplier_poly(mult_fixed.p3b[key])
+end
+
 function extract_fixed_multiplier(dec::SOSMultiplierDecision)
     coeff_vals = Float64[]
     for i in 1:length(dec.coeffs)
@@ -442,18 +522,15 @@ function add_implication_sos_constraint_phaseB!(
     conclusion_poly,
     premise_poly,
     domain_cons,
-    mult_fixed::MultiplierFixedStore,
+    mult_fixed,
     key::Tuple{Int, Int, Int, Int};
     label=""
 )
     m = length(domain_cons)
     mu = @variable(model, [1:m], lower_bound = 0.0)
 
-    if !haskey(mult_fixed.p2, key)
-        error("Missing fixed P2 multiplier for key $key")
-    end
+    s_fixed = fixed_p2_multiplier_poly_or_default(mult_fixed, key)
 
-    s_fixed = fixed_multiplier_poly(mult_fixed.p2[key])
     certificate_poly = conclusion_poly - s_fixed * premise_poly
 
     for i in 1:m
@@ -514,22 +591,15 @@ function add_two_premise_implication_sos_constraint_phaseB!(
     premise1_poly,
     premise2_poly,
     domain_cons,
-    mult_fixed::MultiplierFixedStore,
+    mult_fixed,
     key::Tuple{Int, Int, Int};
     label=""
 )
     m = length(domain_cons)
     mu = @variable(model, [1:m], lower_bound = 0.0)
 
-    if !haskey(mult_fixed.p3a, key)
-        error("Missing fixed P3A multiplier for key $key")
-    end
-    if !haskey(mult_fixed.p3b, key)
-        error("Missing fixed P3B multiplier for key $key")
-    end
-
-    s1_fixed = fixed_multiplier_poly(mult_fixed.p3a[key])
-    s2_fixed = fixed_multiplier_poly(mult_fixed.p3b[key])
+    s1_fixed = fixed_p3a_multiplier_poly_or_default(mult_fixed, key)
+    s2_fixed = fixed_p3b_multiplier_poly_or_default(mult_fixed, key)
 
     certificate_poly =
         conclusion_poly -
@@ -625,7 +695,7 @@ end
 # Phase B: fixed multipliers, solve C
 # ---------------------------------------------------------------------
 
-function build_phaseB_problem(model, mult_fixed::MultiplierFixedStore)
+function build_phaseB_problem(model, mult_fixed)
     @variable(model, coeff[p in nodes, q in nodes, k in 1:nbasis])
 
     C_dec = Matrix{Any}(undef, length(nodes), length(nodes))
@@ -757,20 +827,33 @@ function solve_phaseA_with_solver(C_coeff_fixed, solver_name::Symbol)
     return model, mult_decisions
 end
 
-function solve_phaseB_with_solver(mult_fixed::MultiplierFixedStore, solver_name::Symbol)
+function solve_phaseB_with_solver(mult_fixed, solver_name::Symbol; seed_phase=false)
     println("\nBuilding Phase B fixed-multiplier C model with ", uppercase(string(solver_name)), "...")
     model = make_model(solver_name)
     coeff, C_dec, num_sos_constraints = build_phaseB_problem(model, mult_fixed)
 
     println("Number of SOS/domain constraints = ", num_sos_constraints)
     println("Expected count for full implication model = 20")
-    println("Fixed P2 multipliers = ", length(mult_fixed.p2))
-    println("Fixed P3A multipliers = ", length(mult_fixed.p3a))
-    println("Fixed P3B multipliers = ", length(mult_fixed.p3b))
+
+    if mult_fixed === nothing
+        println("Fixed P2 multipliers = baseline scalar IMP_MULT_P2")
+        println("Fixed P3A multipliers = baseline scalar IMP_MULT_P3_A")
+        println("Fixed P3B multipliers = baseline scalar IMP_MULT_P3_B")
+    else
+        println("Fixed P2 multipliers = ", length(mult_fixed.p2))
+        println("Fixed P3A multipliers = ", length(mult_fixed.p3a))
+        println("Fixed P3B multipliers = ", length(mult_fixed.p3b))
+    end
+    
     println("Starting Phase B optimization...")
 
     optimize!(model)
-    print_solve_summary(model, solver_name, "Phase B")
+
+    print_solve_summary(
+        model,
+        solver_name,
+        seed_phase ? "Bootstrap Phase B" : "Phase B"
+    )
 
     return model, coeff, C_dec
 end
@@ -813,18 +896,34 @@ function extract_C_coeffs(coeff)
     return Cc
 end
 
-function solve_C_given_multipliers(mult_fixed::MultiplierFixedStore)
+function solve_C_given_multipliers(mult_fixed; seed_phase=false)
     for solver_name in [:mosek, :scs]
         try
-            model, coeff, C_dec = solve_phaseB_with_solver(mult_fixed, solver_name)
-            if acceptable_solution(model)
+            model, coeff, C_dec = solve_phaseB_with_solver(
+                mult_fixed,
+                solver_name;
+                seed_phase=seed_phase
+            )
+
+            accepted =
+                seed_phase ? is_acceptable_seed_solution(model) : acceptable_solution(model)
+
+            if accepted
                 C_coeff_new = extract_C_coeffs(coeff)
                 return C_coeff_new, model, solver_name
             else
-                println("[WARN] Phase B with ", solver_name, " did not return an acceptable solution.")
+                if seed_phase
+                    println("[WARN] Bootstrap Phase B with ", solver_name, " did not return an acceptable seed.")
+                else
+                    println("[WARN] Phase B with ", solver_name, " did not return an acceptable solution.")
+                end
             end
         catch err
-            println("[WARN] Phase B with ", solver_name, " failed.")
+            if seed_phase
+                println("[WARN] Bootstrap Phase B with ", solver_name, " failed.")
+            else
+                println("[WARN] Phase B with ", solver_name, " failed.")
+            end
             println("Error:")
             println(err)
         end
@@ -846,20 +945,70 @@ function save_status_only(status_dict)
     println("  ", OUT_STATUS_JSON)
 end
 
-function save_alternating_results(C_coeff, last_phaseB_model, phaseA_solver, phaseB_solver, iterations_completed)
+function serialize_fixed_multiplier_store(mult_fixed)
+    if mult_fixed === nothing
+        return nothing
+    end
+
+    p2 = Dict{String, Any}()
+    p3a = Dict{String, Any}()
+    p3b = Dict{String, Any}()
+
+    for (key, mult) in mult_fixed.p2
+        p2[string(key)] = Dict(
+            "coeffs" => mult.coeffs,
+            "basis" => [string(b) for b in mult.basis],
+        )
+    end
+
+    for (key, mult) in mult_fixed.p3a
+        p3a[string(key)] = Dict(
+            "coeffs" => mult.coeffs,
+            "basis" => [string(b) for b in mult.basis],
+        )
+    end
+
+    for (key, mult) in mult_fixed.p3b
+        p3b[string(key)] = Dict(
+            "coeffs" => mult.coeffs,
+            "basis" => [string(b) for b in mult.basis],
+        )
+    end
+
+    return Dict(
+        "p2" => p2,
+        "p3a" => p3a,
+        "p3b" => p3b,
+    )
+end
+
+function save_alternating_results(
+    C_coeff,
+    best_mult,
+    last_phaseB_model,
+    phaseA_solver,
+    phaseB_solver,
+    iterations_completed
+)
     mkpath(RESULTS_DIR)
 
     coeff_values = coeff_dict_to_array(C_coeff)
     basis_strings = [string(b) for b in basis_xy]
     edge_array = [[p, sigma, q] for (p, sigma, q) in edges]
 
-    status_string = last_phaseB_model === nothing ? "UNKNOWN" : string(termination_status(last_phaseB_model))
-    primal_status_string = last_phaseB_model === nothing ? "UNKNOWN" : string(primal_status(last_phaseB_model))
-    objective = last_phaseB_model === nothing ? nothing : safe_objective_value(last_phaseB_model)
+    status_string =
+        last_phaseB_model === nothing ? "UNKNOWN" : string(termination_status(last_phaseB_model))
+
+    primal_status_string =
+        last_phaseB_model === nothing ? "UNKNOWN" : string(primal_status(last_phaseB_model))
+
+    objective =
+        last_phaseB_model === nothing ? nothing : safe_objective_value(last_phaseB_model)
 
     certificate_type = "alternating_implication_pairwise_sos"
+    serialized_multipliers = serialize_fixed_multiplier_store(best_mult)
 
-    @save OUT_JLD2 coeff_values basis_strings edge_array WF_DEC status_string primal_status_string objective certificate_type iterations_completed
+    @save OUT_JLD2 coeff_values basis_strings edge_array WF_DEC status_string primal_status_string objective certificate_type iterations_completed serialized_multipliers
 
     json_dict = Dict(
         "description" => "Alternating implication-style SOS PC-CC synthesis result for two-car platoon example",
@@ -875,10 +1024,11 @@ function save_alternating_results(C_coeff, last_phaseB_model, phaseA_solver, pha
         "C_degree" => 2,
         "P2_premise_multiplier_degree" => ALT_P2_PREMISE_MULT_DEG,
         "P3_premise_multiplier_degree" => ALT_P3_PREMISE_MULT_DEG,
+        "fixed_premise_multipliers" => serialized_multipliers,
         "baseline_fixed_multipliers" => Dict(
             "IMP_MULT_P2" => IMP_MULT_P2,
             "IMP_MULT_P3_A" => IMP_MULT_P3_A,
-            "IMP_MULT_P3_B" => IMP_MULT_P3_B
+            "IMP_MULT_P3_B" => IMP_MULT_P3_B,
         ),
         "nodes" => nodes,
         "edges" => edge_array,
@@ -889,15 +1039,24 @@ function save_alternating_results(C_coeff, last_phaseB_model, phaseA_solver, pha
             "x1_max" => 3.0,
             "x2_min" => 0.0,
             "x2_max" => 5.1,
-            "gap_min" => 0.0
+            "gap_min" => 0.0,
         ),
-        "initial_set" => Dict("gap_max" => 0.3),
-        "unsafe_set" => Dict("gap_max" => 0.4),
+        "initial_set" => Dict(
+            "gap_max" => 0.3,
+        ),
+        "persistence_set" => Dict(
+            "gap_max" => 0.4,
+            "interpretation" => "Xu is used as the persistence region in this experiment.",
+        ),
+        "unsafe_set" => Dict(
+            "gap_max" => 0.4,
+            "note" => "Kept for backward compatibility with existing validation scripts; in the paper, interpret Xu as the persistence region.",
+        ),
         "conditions" => Dict(
             "P1" => "For each edge (p,sigma,q), C[p,q](x,f_sigma(x)) >= 0 on X.",
             "P2" => "For each edge (p,sigma,q) and node r, C[q,r](f_sigma(x),y) >= 0 implies C[p,r](x,y) >= 0 on X x X.",
-            "P3" => "For all p,q,r, C[p,q](x0,y) >= 0 and C[q,r](y,z) >= 0 imply C[p,r](x0,z) <= C[p,q](x0,y) - wf_decrease on X0 x Xu x Xu."
-        )
+            "P3" => "For all p,q,r, C[p,q](x0,y) >= 0 and C[q,r](y,z) >= 0 imply C[p,r](x0,z) <= C[p,q](x0,y) - wf_decrease on X0 x Xu x Xu.",
+        ),
     )
 
     open(OUT_JSON, "w") do io
@@ -919,7 +1078,39 @@ function main()
     println("Starting alternating SOS synthesis")
     println("============================================================")
 
-    C_coeff_current = initial_distance_C_coeffs()
+    C_coeff_current, seed_model, seed_solver = solve_C_given_multipliers(nothing; seed_phase=true)
+
+    if C_coeff_current === nothing
+        println("\n[ERROR] Bootstrap Phase B failed.")
+        println("        Could not obtain an initial C from fixed scalar multipliers.")
+        println("        Alternating synthesis cannot start.")
+
+        status_dict = Dict(
+            "description" => "Alternating implication-style SOS PC-CC synthesis status for two-car platoon example",
+            "certificate_type" => "alternating_implication_pairwise_sos",
+            "feasible_certificate_saved" => false,
+            "message" => "Bootstrap Phase B failed; no initial C seed was obtained.",
+            "iterations_completed" => 0,
+            "bootstrap_solver" => string(seed_solver),
+            "wf_decrease" => WF_DEC,
+            "C_degree" => 2,
+            "P2_premise_multiplier_degree" => ALT_P2_PREMISE_MULT_DEG,
+            "P3_premise_multiplier_degree" => ALT_P3_PREMISE_MULT_DEG,
+            "nodes" => nodes,
+            "edges" => [[p, sigma, q] for (p, sigma, q) in edges],
+        )
+
+        save_status_only(status_dict)
+
+        println("\nDone, but no alternating certificate was saved.")
+        return
+    end
+
+    println("\n[OK] Bootstrap Phase B produced an initial C seed.")
+    println("     bootstrap solver = ", seed_solver)
+    println("     bootstrap termination status = ", termination_status(seed_model))
+    println("     bootstrap primal status      = ", primal_status(seed_model))
+
     best_C_coeff = nothing
     best_mult = nothing
     last_phaseB_model = nothing
@@ -1001,8 +1192,10 @@ function main()
     end
 
     println("\nSaving best C coefficient set from alternating synthesis...")
+    
     save_alternating_results(
         best_C_coeff,
+        best_mult,
         last_phaseB_model,
         last_phaseA_solver,
         last_phaseB_solver,

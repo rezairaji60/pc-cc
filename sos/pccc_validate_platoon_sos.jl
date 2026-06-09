@@ -19,9 +19,10 @@ using Printf
 # ---------------------------------------------------------------------
 
 const DEFAULT_CERT_PATHS = [
+    joinpath("results", "pccc_synth_platoon_sos_alternating.json"),
+    joinpath("results", "pccc_synth_platoon_sos.json"),
     joinpath("results", "pccc_synth_platoon_sos_A_wf1e-5.json"),
     joinpath("results", "pccc_tuning_logs", "A_wf1e-5_certificate.json"),
-    joinpath("results", "pccc_synth_platoon_sos.json"),
 ]
 
 const DEFAULT_N1 = 21
