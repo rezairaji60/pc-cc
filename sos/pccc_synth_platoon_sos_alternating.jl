@@ -38,8 +38,28 @@ const WF_DEC = 1.0e-6
 # Alternating settings.
 const ALT_MAX_ITERS = 5
 const ALT_P2_PREMISE_MULT_DEG = 0
-const ALT_P3_PREMISE_MULT_DEG = 0
+const ALT_P3_PREMISE_MULT_DEG = 2
 const ALT_C_CONV_TOL = 1.0e-6
+
+# --------------------------------------------------------------------------
+# Nontriviality / relation-shaping anchors
+#
+# The relation represented by C[p,q](x,y) >= 0 should not become universal.
+# These finite anchor constraints force C[p,q] to be negative at selected
+# obviously unrelated pairs. They are synthesis normalizations, not additional
+# theorem assumptions.
+# --------------------------------------------------------------------------
+
+const ALT_USE_NEGATIVE_ANCHORS = false
+const ALT_NEG_ANCHOR_MARGIN = 1.0e-5
+
+const ALT_NEG_ANCHORS = [
+    # (a1, a2, b1, b2) means enforce C[p,q]((a1,a2),(b1,b2)) <= -margin.
+
+    # Points inspired by the P3 validation failure: far-apart x/y pairs.
+    (3.0, 3.1875, 0.0, 0.0),
+    (0.0, 0.0, 3.0, 3.315),
+]
 
 # Keep this false in the alternating script. The direct joint SOS-multiplier
 # model is bilinear and was already rejected experimentally.
@@ -101,13 +121,83 @@ function is_acceptable_seed_solution(model)
         return false
     end
 
-    if term in ALT_ACCEPT_TERMS && prim in ACCEPT_PRIMALS
+    if !(prim in ACCEPT_PRIMALS)
+        return false
+    end
+
+    # Strictly acceptable seed.
+    if term in ALT_ACCEPT_TERMS
         return true
     end
 
-    # Bootstrap only: allow an SCS iterate as an initialization seed.
-    # This is not a proof certificate.
-    if term == MOI.ITERATION_LIMIT && prim == MOI.FEASIBLE_POINT
+    # Bootstrap only:
+    # Allow numerical iterates that have usable primal values.
+    # These are not accepted as final certificates.
+    if term == MOI.SLOW_PROGRESS
+        return true
+    end
+
+    if term == MOI.ITERATION_LIMIT
+        return true
+    end
+
+    return false
+end
+
+function is_acceptable_alternating_iterate(model)
+    term = termination_status(model)
+    prim = primal_status(model)
+
+    if acceptable_solution(model)
+        return true
+    end
+
+    if !has_values(model)
+        return false
+    end
+
+    if !(prim in ACCEPT_PRIMALS)
+        return false
+    end
+
+    # Alternating only:
+    # Allow numerical iterates so Phase A can pass multipliers to Phase B.
+    # These are not accepted as final paper certificates.
+    if term == MOI.SLOW_PROGRESS
+        return true
+    end
+
+    if term == MOI.ITERATION_LIMIT
+        return true
+    end
+
+    return false
+end
+
+function is_acceptable_phaseB_iterate(model)
+    term = termination_status(model)
+    prim = primal_status(model)
+
+    if acceptable_solution(model)
+        return true
+    end
+
+    if !has_values(model)
+        return false
+    end
+
+    if !(prim in ACCEPT_PRIMALS)
+        return false
+    end
+
+    # Alternating only:
+    # Allow numerical C iterates so the alternating loop can continue.
+    # These are not accepted as final paper certificates.
+    if term == MOI.SLOW_PROGRESS
+        return true
+    end
+
+    if term == MOI.ITERATION_LIMIT
         return true
     end
 
@@ -226,10 +316,10 @@ end
 function make_model_with_scs()
     optimizer = optimizer_with_attributes(
         SCS.Optimizer,
-        "eps_abs" => 1.0e-8,
-        "eps_rel" => 1.0e-8,
-        "eps_infeas" => 1.0e-9,
-        "max_iters" => 2000000,
+        "eps_abs" => 1.0e-7,
+        "eps_rel" => 1.0e-7,
+        "eps_infeas" => 1.0e-8,
+        "max_iters" => 500000,
         "verbose" => 1,
     )
     model = SOSModel(optimizer)
@@ -312,6 +402,41 @@ end
 
 function fixed_C_poly(C_coeff_fixed, p, q)
     return sum(C_coeff_fixed[(p, q, k)] * basis_xy[k] for k in 1:nbasis)
+end
+
+function add_soft_negative_anchor_constraints!(model, C_dec)
+    if !ALT_USE_NEGATIVE_ANCHORS
+        return 0, 0.0
+    end
+
+    nanchors = 0
+    anchor_slacks = Any[]
+
+    for p in nodes
+        for q in nodes
+            for (a1, a2, b1, b2) in ALT_NEG_ANCHORS
+                s = @variable(
+                    model,
+                    lower_bound = 0.0,
+                    base_name = string(gensym(:anchor_slack))
+                )
+
+                @constraint(
+                    model,
+                    C_eval(C_dec[p, q], a1, a2, b1, b2) <=
+                        -ALT_NEG_ANCHOR_MARGIN + s
+                )
+
+                push!(anchor_slacks, s)
+                nanchors += 1
+            end
+        end
+    end
+
+    slack_sum =
+        isempty(anchor_slacks) ? 0.0 : sum(anchor_slacks)
+
+    return nanchors, slack_sum
 end
 
 function coeff_dict_to_array(C_coeff)
@@ -437,13 +562,29 @@ end
 
 function extract_fixed_multiplier(dec::SOSMultiplierDecision)
     coeff_vals = Float64[]
+
     for i in 1:length(dec.coeffs)
         val = value(dec.coeffs[i])
+
         if !(val isa Number) || !isfinite(val)
             error("Invalid multiplier coefficient value: $val")
         end
-        push!(coeff_vals, Float64(val))
+
+        v = Float64(val)
+
+        # For degree-0 SOS multipliers, the single coefficient must be
+        # nonnegative. SCS can return tiny negative noise.
+        if length(dec.coeffs) == 1 && v < 0.0
+            if v >= -1.0e-8
+                v = 0.0
+            else
+                error("Degree-0 SOS multiplier is significantly negative: $v")
+            end
+        end
+
+        push!(coeff_vals, v)
     end
+
     return SOSMultiplierFixed(coeff_vals, dec.basis)
 end
 
@@ -706,6 +847,11 @@ function build_phaseB_problem(model, mult_fixed)
         end
     end
 
+    num_anchor_constraints, anchor_slack_sum = 
+        add_soft_negative_anchor_constraints!(model, C_dec)
+
+    println("Soft negative anchor constraints = ", num_anchor_constraints)
+
     num_sos_constraints = 0
 
     # P1. One-step closure.
@@ -765,7 +911,7 @@ function build_phaseB_problem(model, mult_fixed)
         end
     end
 
-    @objective(model, Min, 0.0)
+    @objective(model, Min, anchor_slack_sum)
     return coeff, C_dec, num_sos_constraints
 end
 
@@ -862,11 +1008,17 @@ function solve_multipliers_given_C(C_coeff_fixed)
     for solver_name in [:mosek, :scs]
         try
             model, mult_decisions = solve_phaseA_with_solver(C_coeff_fixed, solver_name)
-            if acceptable_solution(model)
+
+            if is_acceptable_alternating_iterate(model)
+                if !acceptable_solution(model)
+                    println("[WARN] Phase A with ", solver_name, " returned only an approximate iterate.")
+                    println("       This is allowed for alternating, but not accepted as a final certificate.")
+                end
+
                 mult_fixed = extract_fixed_multipliers(mult_decisions)
                 return mult_fixed, model, solver_name
             else
-                println("[WARN] Phase A with ", solver_name, " did not return an acceptable solution.")
+                println("[WARN] Phase A with ", solver_name, " did not return an acceptable alternating iterate.")
             end
         catch err
             println("[WARN] Phase A with ", solver_name, " failed.")
@@ -906,16 +1058,24 @@ function solve_C_given_multipliers(mult_fixed; seed_phase=false)
             )
 
             accepted =
-                seed_phase ? is_acceptable_seed_solution(model) : acceptable_solution(model)
+                seed_phase ? is_acceptable_seed_solution(model) : is_acceptable_phaseB_iterate(model)
 
             if accepted
+                if seed_phase && !acceptable_solution(model)
+                    println("[WARN] Bootstrap Phase B with ", solver_name, " returned only an approximate seed.")
+                    println("       This is allowed for initialization, but not accepted as a final certificate.")
+                elseif !seed_phase && !acceptable_solution(model)
+                    println("[WARN] Phase B with ", solver_name, " returned only an approximate C iterate.")
+                    println("       This is allowed for alternating, but not accepted as a final certificate.")
+                end
+
                 C_coeff_new = extract_C_coeffs(coeff)
                 return C_coeff_new, model, solver_name
             else
                 if seed_phase
                     println("[WARN] Bootstrap Phase B with ", solver_name, " did not return an acceptable seed.")
                 else
-                    println("[WARN] Phase B with ", solver_name, " did not return an acceptable solution.")
+                    println("[WARN] Phase B with ", solver_name, " did not return an acceptable alternating iterate.")
                 end
             end
         catch err
@@ -1005,7 +1165,11 @@ function save_alternating_results(
     objective =
         last_phaseB_model === nothing ? nothing : safe_objective_value(last_phaseB_model)
 
+    final_solver_accepted =
+        last_phaseB_model !== nothing && acceptable_solution(last_phaseB_model)
+
     certificate_type = "alternating_implication_pairwise_sos"
+
     serialized_multipliers = serialize_fixed_multiplier_store(best_mult)
 
     @save OUT_JLD2 coeff_values basis_strings edge_array WF_DEC status_string primal_status_string objective certificate_type iterations_completed serialized_multipliers
@@ -1019,7 +1183,12 @@ function save_alternating_results(
         "primal_status" => primal_status_string,
         "objective" => objective,
         "iterations_completed" => iterations_completed,
-        "feasible_certificate_saved" => true,
+        "feasible_certificate_saved" => final_solver_accepted,
+        "candidate_saved" => true,
+        "paper_ready_solver_status" => final_solver_accepted,
+        "certificate_warning" => final_solver_accepted ?
+            "Final Phase B solver status was accepted." :
+            "Candidate saved from an approximate alternating iterate; validate carefully and do not use as a paper certificate without further verification.",
         "wf_decrease" => WF_DEC,
         "C_degree" => 2,
         "P2_premise_multiplier_degree" => ALT_P2_PREMISE_MULT_DEG,
