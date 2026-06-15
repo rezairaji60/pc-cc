@@ -1,0 +1,192 @@
+using JuMP
+using JSON
+using Printf
+const MOI = JuMP.MOI
+try
+    @eval using MosekTools
+catch err
+    error("MosekTools is required. Original error: $(err)")
+end
+
+const D_SAFE = 0.3
+const D_UNSAFE = 0.4
+const N_REGIONS = 3
+const NBASIS = 6
+const X1_MIN = 0.0
+const X1_MAX = 3.0
+const X2_MIN = 0.0
+const X2_MAX = 5.1
+const NODES = [1, 2]
+const MODES = [1, 2]
+const EDGES = [(1,1,1), (1,1,2), (1,2,2), (2,2,1)]
+const RANK_NODES = [1]
+
+function f_mode(sigma::Int, x::Vector{Float64})
+    x1, x2 = x
+    if sigma == 1
+        return [0.01*x2 + 0.9*x1 - 0.02*x1^2, 2.0 + 0.8*x2 - 0.04*x2^2]
+    elseif sigma == 2
+        return [0.9*x1 - 0.02*x1^2, 2.0 + 0.8*x2 - 0.04*x2^2]
+    else
+        error("unknown mode")
+    end
+end
+
+function quad_basis(x::Vector{Float64})
+    x1, x2 = x
+    return [1.0, x1, x2, x1^2, x1*x2, x2^2]
+end
+
+function region_index(x::Vector{Float64})
+    gap = x[2] - x[1]
+    if gap <= D_SAFE + 1e-12
+        return 1
+    elseif gap <= D_UNSAFE + 1e-12
+        return 2
+    else
+        return 3
+    end
+end
+
+function make_grid(n1::Int, n2::Int)
+    pts = Vector{Vector{Float64}}()
+    for x1 in range(X1_MIN, X1_MAX; length=n1), x2 in range(X2_MIN, X2_MAX; length=n2)
+        if x2 + 1e-12 >= x1
+            push!(pts, [Float64(x1), Float64(x2)])
+        end
+    end
+    return pts
+end
+
+function make_X0_grid(n1::Int, n2::Int)
+    raw = make_grid(n1, n2)
+    return [x for x in raw if x[2] - x[1] <= D_SAFE + 1e-12]
+end
+
+function make_Xu_grid(n1::Int, n2::Int)
+    raw = make_grid(n1, n2)
+    return [x for x in raw if x[2] - x[1] <= D_UNSAFE + 1e-12]
+end
+
+function remove_X0_from_Xu(Xu, X0)
+    out = Vector{Vector{Float64}}()
+    for x in Xu
+        in_x0 = any(maximum(abs.(x .- x0)) <= 1e-10 for x0 in X0)
+        if !in_x0
+            push!(out, x)
+        end
+    end
+    return out
+end
+
+function V_expr(c, v::Int, x::Vector{Float64})
+    r = region_index(x)
+    b = quad_basis(x)
+    return sum(c[v,r,k] * b[k] for k in 1:NBASIS)
+end
+
+function C_expr(c, v::Int, x::Vector{Float64}, xp::Vector{Float64})
+    return V_expr(c, v, xp) - V_expr(c, v, x)
+end
+
+function solve_case(label::String; use_p1::Bool=true, use_p2::Bool=true, use_p3::Bool=true,
+                    zeta::Float64=3.0, lambda1::Float64=0.95,
+                    lambda2::Float64=0.02, lambda3::Float64=0.02,
+                    theta::Float64=5e-5, norm_value::Float64=-1.0,
+                    coarse_n1::Int=7, coarse_n2::Int=7,
+                    wf_n1::Int=7, wf_n2::Int=41,
+                    x0_n1::Int=7, x0_n2::Int=41,
+                    coeff_bound::Float64=100.0)
+    X = make_grid(coarse_n1, coarse_n2)
+    Xp = X
+    X0 = make_X0_grid(x0_n1, x0_n2)
+    Xu = make_Xu_grid(wf_n1, wf_n2)
+    Xu_wf = remove_X0_from_Xu(Xu, X0)
+    if use_p3 && (isempty(X0) || isempty(Xu_wf))
+        return Dict("label"=>label, "term"=>"EMPTY_P3_GRID", "primal"=>"NO_SOLUTION", "rho"=>nothing, "num_X"=>length(X), "num_X0"=>length(X0), "num_Xu_wf"=>length(Xu_wf))
+    end
+
+    model = Model(Mosek.Optimizer)
+    set_silent(model)
+    @variable(model, c[v in NODES, r in 1:N_REGIONS, k in 1:NBASIS])
+    @variable(model, rho >= 0.0)
+    for v in NODES, r in 1:N_REGIONS, k in 1:NBASIS
+        @constraint(model, c[v,r,k] <= rho)
+        @constraint(model, -c[v,r,k] <= rho)
+    end
+    @constraint(model, rho <= coeff_bound)
+
+    if use_p1
+        for v in NODES, x in X, sigma in MODES
+            @constraint(model, C_expr(c, v, x, f_mode(sigma, x)) <= zeta)
+        end
+    end
+
+    if use_p2
+        for (u,sigma,v) in EDGES, x in X
+            xnext = f_mode(sigma, x)
+            for xp in Xp
+                @constraint(model, C_expr(c, u, x, xp) <= lambda1*C_expr(c, v, xnext, xp) + (1.0-lambda1)*zeta)
+            end
+        end
+    end
+
+    if use_p3
+        for v in RANK_NODES, x0 in X0, x in Xu_wf, xp in Xu_wf
+            @constraint(model,
+                C_expr(c, v, x0, xp) + C_expr(c, v, x, x0) -
+                lambda2*C_expr(c, v, x0, x) - lambda3*C_expr(c, v, x, xp) +
+                (theta + lambda2*zeta + lambda3*zeta) <= 0.0)
+        end
+    end
+
+    x_ref = X[1]
+    xp_ref = Xp[end]
+    @constraint(model, C_expr(c, 1, x_ref, xp_ref) == norm_value)
+    @objective(model, Min, rho)
+    optimize!(model)
+    term = string(termination_status(model))
+    primal = string(primal_status(model))
+    rho_val = (primal_status(model) in [MOI.FEASIBLE_POINT, MOI.NEARLY_FEASIBLE_POINT]) ? objective_value(model) : nothing
+    return Dict("label"=>label, "term"=>term, "primal"=>primal, "rho"=>rho_val,
+                "num_X"=>length(X), "num_X0"=>length(X0), "num_Xu_wf"=>length(Xu_wf),
+                "use_p1"=>use_p1, "use_p2"=>use_p2, "use_p3"=>use_p3,
+                "zeta"=>zeta, "lambda1"=>lambda1, "lambda2"=>lambda2,
+                "lambda3"=>lambda3, "theta"=>theta, "norm_value"=>norm_value)
+end
+
+function print_row(r)
+    rho = r["rho"] === nothing ? "-" : @sprintf("%.3e", r["rho"])
+    println(rpad(r["label"], 32), "  ", rpad(r["term"], 14), "  ", rpad(r["primal"], 18), "  rho=", rho,
+            "  X0=", r["num_X0"], "  Xu_wf=", r["num_Xu_wf"])
+end
+
+function main()
+    # Import Printf here to keep script startup simple.
+    cases = Dict{String,Any}[]
+    push!(cases, solve_case("P1+P2 only", use_p1=true, use_p2=true, use_p3=false))
+    push!(cases, solve_case("P3 only original", use_p1=false, use_p2=false, use_p3=true))
+    push!(cases, solve_case("P1+P2+P3 original", use_p1=true, use_p2=true, use_p3=true))
+    push!(cases, solve_case("P1+P2+P3 theta=0", use_p1=true, use_p2=true, use_p3=true, theta=0.0))
+    push!(cases, solve_case("P1+P2+P3 l2l3=0 theta=0", use_p1=true, use_p2=true, use_p3=true, lambda2=0.0, lambda3=0.0, theta=0.0))
+    push!(cases, solve_case("P1+P2+P3 l2l3=0 theta=5e-5", use_p1=true, use_p2=true, use_p3=true, lambda2=0.0, lambda3=0.0, theta=5e-5))
+    push!(cases, solve_case("P1+P2+P3 norm=-0.1", use_p1=true, use_p2=true, use_p3=true, norm_value=-0.1))
+    push!(cases, solve_case("P1+P2+P3 norm=-10", use_p1=true, use_p2=true, use_p3=true, norm_value=-10.0))
+    push!(cases, solve_case("P3 only l2l3=0 theta=0", use_p1=false, use_p2=false, use_p3=true, lambda2=0.0, lambda3=0.0, theta=0.0))
+
+    println("Legacy pwquad infeasibility diagnostic on minimal non-vacuous WF grid")
+    println("Grid: coarse 7x7, wf 7x41, x0 7x41")
+    println("label                             term            primal              rho       counts")
+    println("--------------------------------------------------------------------------------")
+    for r in cases
+        print_row(r)
+    end
+    mkpath(joinpath("results", "diagnostics"))
+    out = joinpath("results", "diagnostics", "legacy_pwquad_infeasibility_diagnostic.json")
+    open(out, "w") do io
+        JSON.print(io, cases, 2)
+    end
+    println("Saved diagnostic JSON: ", out)
+end
+
+main()

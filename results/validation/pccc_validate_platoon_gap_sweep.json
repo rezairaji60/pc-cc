@@ -1,0 +1,430 @@
+{
+  "N1": 21,
+  "N2": 41,
+  "P1_worst_case": {
+    "edge": [
+      1,
+      1,
+      2
+    ],
+    "fx": [
+      0.0,
+      2.0
+    ],
+    "value": -4.263256414560601e-14,
+    "x": [
+      0.0,
+      0.0
+    ]
+  },
+  "P2_worst_case": {
+    "A": 2.6565602427660908e-5,
+    "B": -1.5388828680931962e-5,
+    "edge": [
+      1,
+      1,
+      1
+    ],
+    "r": 1,
+    "x": [
+      0.0,
+      0.0
+    ],
+    "y": [
+      3.0,
+      3.06
+    ]
+  },
+  "active_tol": 1.0e-7,
+  "certificate_path": "results\\pccc_synth_platoon_grid_polished_best.json",
+  "num_X": 604,
+  "num_X0": 50,
+  "rows": [
+    {
+      "P1_minimum": -4.263256414560601e-14,
+      "P1_pass": true,
+      "P2_active_premise_count": 2918373,
+      "P2_minimum_active_conclusion": -1.5388828680931962e-5,
+      "P2_pass": false,
+      "P3_exact_active_pass": false,
+      "P3_exact_active_premise_count": 1615738,
+      "P3_minimum_exact_active_decrease_slack": -9.584217188606401e-5,
+      "P3_minimum_unconditional_decrease_slack": -0.00010174900411350675,
+      "P3_unconditional_pass": false,
+      "gap_max": 0.4,
+      "num_Xu": 67,
+      "required_validation_exact_active_pass": false,
+      "worst_P3_exact_active_case": {
+        "A": 2.1716982417891632e-5,
+        "B": 1.072105585913174e-6,
+        "D": -9.584217188606401e-5,
+        "p": 2,
+        "q": 1,
+        "r": 2,
+        "x0": [
+          3.0,
+          3.06
+        ],
+        "y": [
+          0.0,
+          0.3825
+        ],
+        "z": [
+          0.3,
+          0.6375
+        ]
+      },
+      "worst_P3_unconditional_case": {
+        "A": 2.1716982417891632e-5,
+        "B": -2.1606001232908235e-6,
+        "D": -0.00010174900411350675,
+        "p": 2,
+        "q": 1,
+        "r": 2,
+        "x0": [
+          3.0,
+          3.06
+        ],
+        "y": [
+          0.0,
+          0.3825
+        ],
+        "z": [
+          0.0,
+          0.3825
+        ]
+      }
+    },
+    {
+      "P1_minimum": -4.263256414560601e-14,
+      "P1_pass": true,
+      "P2_active_premise_count": 2918373,
+      "P2_minimum_active_conclusion": -1.5388828680931962e-5,
+      "P2_pass": false,
+      "P3_exact_active_pass": false,
+      "P3_exact_active_premise_count": 1428559,
+      "P3_minimum_exact_active_decrease_slack": -9.386964196890121e-5,
+      "P3_minimum_unconditional_decrease_slack": -9.744095767408061e-5,
+      "P3_unconditional_pass": false,
+      "gap_max": 0.375,
+      "num_Xu": 63,
+      "required_validation_exact_active_pass": false,
+      "worst_P3_exact_active_case": {
+        "A": 2.6664589612733543e-5,
+        "B": 9.954626831776282e-7,
+        "D": -9.386964196890121e-5,
+        "p": 2,
+        "q": 1,
+        "r": 2,
+        "x0": [
+          3.0,
+          3.06
+        ],
+        "y": [
+          0.3,
+          0.6375
+        ],
+        "z": [
+          0.15,
+          0.51
+        ]
+      },
+      "worst_P3_unconditional_case": {
+        "A": 2.3700353107900782e-5,
+        "B": -3.588724587259051e-6,
+        "D": -9.744095767408061e-5,
+        "p": 2,
+        "q": 1,
+        "r": 2,
+        "x0": [
+          3.0,
+          3.06
+        ],
+        "y": [
+          0.0,
+          0.255
+        ],
+        "z": [
+          0.0,
+          0.255
+        ]
+      }
+    },
+    {
+      "P1_minimum": -4.263256414560601e-14,
+      "P1_pass": true,
+      "P2_active_premise_count": 2918373,
+      "P2_minimum_active_conclusion": -1.5388828680931962e-5,
+      "P2_pass": false,
+      "P3_exact_active_pass": false,
+      "P3_exact_active_premise_count": 1205965,
+      "P3_minimum_exact_active_decrease_slack": -9.210263948193163e-5,
+      "P3_minimum_unconditional_decrease_slack": -9.744095767408061e-5,
+      "P3_unconditional_pass": false,
+      "gap_max": 0.35,
+      "num_Xu": 58,
+      "required_validation_exact_active_pass": false,
+      "worst_P3_exact_active_case": {
+        "A": 2.9038671300049757e-5,
+        "B": 1.605189902098303e-6,
+        "D": -9.210263948193163e-5,
+        "p": 2,
+        "q": 1,
+        "r": 2,
+        "x0": [
+          3.0,
+          3.06
+        ],
+        "y": [
+          0.45,
+          0.765
+        ],
+        "z": [
+          0.0,
+          0.255
+        ]
+      },
+      "worst_P3_unconditional_case": {
+        "A": 2.3700353107900782e-5,
+        "B": -3.588724587259051e-6,
+        "D": -9.744095767408061e-5,
+        "p": 2,
+        "q": 1,
+        "r": 2,
+        "x0": [
+          3.0,
+          3.06
+        ],
+        "y": [
+          0.0,
+          0.255
+        ],
+        "z": [
+          0.0,
+          0.255
+        ]
+      }
+    },
+    {
+      "P1_minimum": -4.263256414560601e-14,
+      "P1_pass": true,
+      "P2_active_premise_count": 2918373,
+      "P2_minimum_active_conclusion": -1.5388828680931962e-5,
+      "P2_pass": false,
+      "P3_exact_active_pass": false,
+      "P3_exact_active_premise_count": 1041370,
+      "P3_minimum_exact_active_decrease_slack": -9.210263948193163e-5,
+      "P3_minimum_unconditional_decrease_slack": -9.744095767408061e-5,
+      "P3_unconditional_pass": false,
+      "gap_max": 0.325,
+      "num_Xu": 54,
+      "required_validation_exact_active_pass": false,
+      "worst_P3_exact_active_case": {
+        "A": 2.9038671300049757e-5,
+        "B": 1.605189902098303e-6,
+        "D": -9.210263948193163e-5,
+        "p": 2,
+        "q": 1,
+        "r": 2,
+        "x0": [
+          3.0,
+          3.06
+        ],
+        "y": [
+          0.45,
+          0.765
+        ],
+        "z": [
+          0.0,
+          0.255
+        ]
+      },
+      "worst_P3_unconditional_case": {
+        "A": 2.3700353107900782e-5,
+        "B": -3.588724587259051e-6,
+        "D": -9.744095767408061e-5,
+        "p": 2,
+        "q": 1,
+        "r": 2,
+        "x0": [
+          3.0,
+          3.06
+        ],
+        "y": [
+          0.0,
+          0.255
+        ],
+        "z": [
+          0.0,
+          0.255
+        ]
+      }
+    },
+    {
+      "P1_minimum": -4.263256414560601e-14,
+      "P1_pass": true,
+      "P2_active_premise_count": 2918373,
+      "P2_minimum_active_conclusion": -1.5388828680931962e-5,
+      "P2_pass": false,
+      "P3_exact_active_pass": false,
+      "P3_exact_active_premise_count": 887291,
+      "P3_minimum_exact_active_decrease_slack": -8.97950390680186e-5,
+      "P3_minimum_unconditional_decrease_slack": -9.744095767408061e-5,
+      "P3_unconditional_pass": false,
+      "gap_max": 0.3,
+      "num_Xu": 50,
+      "required_validation_exact_active_pass": false,
+      "worst_P3_exact_active_case": {
+        "A": 3.134627171396279e-5,
+        "B": 4.3432246037975025e-6,
+        "D": -8.97950390680186e-5,
+        "p": 2,
+        "q": 1,
+        "r": 2,
+        "x0": [
+          3.0,
+          3.06
+        ],
+        "y": [
+          0.6,
+          0.8925
+        ],
+        "z": [
+          0.0,
+          0.255
+        ]
+      },
+      "worst_P3_unconditional_case": {
+        "A": 2.3700353107900782e-5,
+        "B": -3.588724587259051e-6,
+        "D": -9.744095767408061e-5,
+        "p": 2,
+        "q": 1,
+        "r": 2,
+        "x0": [
+          3.0,
+          3.06
+        ],
+        "y": [
+          0.0,
+          0.255
+        ],
+        "z": [
+          0.0,
+          0.255
+        ]
+      }
+    },
+    {
+      "P1_minimum": -4.263256414560601e-14,
+      "P1_pass": true,
+      "P2_active_premise_count": 2918373,
+      "P2_minimum_active_conclusion": -1.5388828680931962e-5,
+      "P2_pass": false,
+      "P3_exact_active_pass": false,
+      "P3_exact_active_premise_count": 743696,
+      "P3_minimum_exact_active_decrease_slack": -8.872290076411337e-5,
+      "P3_minimum_unconditional_decrease_slack": -9.744095767408061e-5,
+      "P3_unconditional_pass": false,
+      "gap_max": 0.275,
+      "num_Xu": 46,
+      "required_validation_exact_active_pass": false,
+      "worst_P3_exact_active_case": {
+        "A": 3.241841001786802e-5,
+        "B": 2.086051892207408e-6,
+        "D": -8.872290076411337e-5,
+        "p": 2,
+        "q": 1,
+        "r": 2,
+        "x0": [
+          3.0,
+          3.06
+        ],
+        "y": [
+          0.6,
+          0.765
+        ],
+        "z": [
+          0.0,
+          0.255
+        ]
+      },
+      "worst_P3_unconditional_case": {
+        "A": 2.3700353107900782e-5,
+        "B": -3.588724587259051e-6,
+        "D": -9.744095767408061e-5,
+        "p": 2,
+        "q": 1,
+        "r": 2,
+        "x0": [
+          3.0,
+          3.06
+        ],
+        "y": [
+          0.0,
+          0.255
+        ],
+        "z": [
+          0.0,
+          0.255
+        ]
+      }
+    },
+    {
+      "P1_minimum": -4.263256414560601e-14,
+      "P1_pass": true,
+      "P2_active_premise_count": 2918373,
+      "P2_minimum_active_conclusion": -1.5388828680931962e-5,
+      "P2_pass": false,
+      "P3_exact_active_pass": false,
+      "P3_exact_active_premise_count": 621017,
+      "P3_minimum_exact_active_decrease_slack": -8.789277661013683e-5,
+      "P3_minimum_unconditional_decrease_slack": -9.311576502540844e-5,
+      "P3_unconditional_pass": false,
+      "gap_max": 0.25,
+      "num_Xu": 42,
+      "required_validation_exact_active_pass": false,
+      "worst_P3_exact_active_case": {
+        "A": 3.0338617700480954e-5,
+        "B": 6.004155360908043e-7,
+        "D": -8.789277661013683e-5,
+        "p": 2,
+        "q": 1,
+        "r": 2,
+        "x0": [
+          3.0,
+          3.06
+        ],
+        "y": [
+          0.45,
+          0.6375
+        ],
+        "z": [
+          0.15,
+          0.3825
+        ]
+      },
+      "worst_P3_unconditional_case": {
+        "A": 2.5879306272680842e-5,
+        "B": -4.742572641535947e-6,
+        "D": -9.311576502540844e-5,
+        "p": 2,
+        "q": 1,
+        "r": 2,
+        "x0": [
+          3.0,
+          3.06
+        ],
+        "y": [
+          0.0,
+          0.1275
+        ],
+        "z": [
+          0.0,
+          0.1275
+        ]
+      }
+    }
+  ],
+  "xi": 1.0e-6
+}

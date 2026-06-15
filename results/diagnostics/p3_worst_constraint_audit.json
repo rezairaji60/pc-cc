@@ -1,0 +1,218 @@
+[
+  {
+    "D_UNSAFE": 0.35,
+    "coeff_bound": 100000.0,
+    "lambda1": 0.95,
+    "lambda2": 0.02,
+    "lambda3": 0.02,
+    "max_p3_lhs_at_theta": 3.637547019152976e-10,
+    "num_X": 156,
+    "num_X0": 50,
+    "num_Xu_wf": 8,
+    "primal": "FEASIBLE_POINT",
+    "rho": 100000.0,
+    "term": "OPTIMAL",
+    "theta_max": -0.12000000009666789,
+    "worst_p3": {
+      "C_x0_x": -5.195033736526966e-9,
+      "C_x0_xp": -4.831235855817795e-9,
+      "C_x_x0": 5.195033736526966e-9,
+      "C_x_xp": 3.637978807091713e-10,
+      "base_without_theta": 0.1200000004604226,
+      "distance_xp_to_nearest_successor_of_x": 3.5060937500000007,
+      "gap_x": 0.3374999999999999,
+      "gap_x0": 0.0,
+      "gap_xp": 0.33749999999999997,
+      "is_diagonal_x_xp": false,
+      "lambda2_C_x0_x": -1.0390067473053933e-10,
+      "lambda2zeta_plus_lambda3zeta": 0.12,
+      "lambda3_C_x_xp": 7.275957614183426e-12,
+      "lhs_at_theta": 3.637547019152976e-10,
+      "nearest_successor_mode": 1,
+      "node": 1,
+      "region_x": 2,
+      "region_x0": 1,
+      "region_xp": 2,
+      "theta": -0.12000000009666789,
+      "x": [
+        2.85,
+        3.1875
+      ],
+      "x0": [
+        2.55,
+        2.55
+      ],
+      "x_near_D_SAFE": false,
+      "x_near_D_UNSAFE": false,
+      "xp": [
+        0.3,
+        0.6375
+      ],
+      "xp_near_D_SAFE": false,
+      "xp_near_D_UNSAFE": false
+    },
+    "zeta": 3.0
+  },
+  {
+    "D_UNSAFE": 0.4,
+    "coeff_bound": 100000.0,
+    "lambda1": 0.95,
+    "lambda2": 0.02,
+    "lambda3": 0.02,
+    "max_p3_lhs_at_theta": -1.1504214469937324e-10,
+    "num_X": 156,
+    "num_X0": 50,
+    "num_Xu_wf": 17,
+    "primal": "FEASIBLE_POINT",
+    "rho": 100000.0,
+    "term": "OPTIMAL",
+    "theta_max": -0.12000000036009639,
+    "worst_p3": {
+      "C_x0_x": -1.3096723705530167e-10,
+      "C_x0_xp": 1.1641532182693481e-10,
+      "C_x_x0": 1.3096723705530167e-10,
+      "C_x_xp": 2.473825588822365e-10,
+      "base_without_theta": 0.12000000024505425,
+      "distance_xp_to_nearest_successor_of_x": 1.5351477500000001,
+      "gap_x": 0.3825,
+      "gap_x0": 0.2999999999999998,
+      "gap_xp": 0.315,
+      "is_diagonal_x_xp": false,
+      "lambda2_C_x0_x": -2.6193447411060332e-12,
+      "lambda2zeta_plus_lambda3zeta": 0.12,
+      "lambda3_C_x_xp": 4.94765117764473e-12,
+      "lhs_at_theta": -1.1504214469937324e-10,
+      "nearest_successor_mode": 1,
+      "node": 1,
+      "region_x": 2,
+      "region_x0": 1,
+      "region_xp": 2,
+      "theta": -0.12000000036009639,
+      "x": [
+        0.0,
+        0.3825
+      ],
+      "x0": [
+        2.25,
+        2.55
+      ],
+      "x_near_D_SAFE": false,
+      "x_near_D_UNSAFE": false,
+      "xp": [
+        0.45,
+        0.765
+      ],
+      "xp_near_D_SAFE": false,
+      "xp_near_D_UNSAFE": false
+    },
+    "zeta": 3.0
+  },
+  {
+    "D_UNSAFE": 0.5,
+    "coeff_bound": 100000.0,
+    "lambda1": 0.95,
+    "lambda2": 0.02,
+    "lambda3": 0.02,
+    "max_p3_lhs_at_theta": 4.0303564929899974e-11,
+    "num_X": 156,
+    "num_X0": 50,
+    "num_Xu_wf": 33,
+    "primal": "FEASIBLE_POINT",
+    "rho": 100000.0,
+    "term": "OPTIMAL",
+    "theta_max": -0.12000000033688207,
+    "worst_p3": {
+      "C_x0_x": -3.2014213502407074e-10,
+      "C_x0_xp": 5.820766091346741e-11,
+      "C_x_x0": 3.2014213502407074e-10,
+      "C_x_xp": 3.7834979593753815e-10,
+      "base_without_theta": 0.12000000037718564,
+      "distance_xp_to_nearest_successor_of_x": 2.996175,
+      "gap_x": 0.3825,
+      "gap_x0": 0.2999999999999998,
+      "gap_xp": 0.31499999999999995,
+      "is_diagonal_x_xp": false,
+      "lambda2_C_x0_x": -6.402842700481415e-12,
+      "lambda2zeta_plus_lambda3zeta": 0.12,
+      "lambda3_C_x_xp": 7.566995918750763e-12,
+      "lhs_at_theta": 4.0303564929899974e-11,
+      "nearest_successor_mode": 1,
+      "node": 1,
+      "region_x": 2,
+      "region_x0": 1,
+      "region_xp": 2,
+      "theta": -0.12000000033688207,
+      "x": [
+        0.0,
+        0.3825
+      ],
+      "x0": [
+        2.25,
+        2.55
+      ],
+      "x_near_D_SAFE": false,
+      "x_near_D_UNSAFE": false,
+      "xp": [
+        3.0,
+        3.315
+      ],
+      "xp_near_D_SAFE": false,
+      "xp_near_D_UNSAFE": false
+    },
+    "zeta": 3.0
+  },
+  {
+    "D_UNSAFE": 1.0,
+    "coeff_bound": 100000.0,
+    "lambda1": 0.95,
+    "lambda2": 0.02,
+    "lambda3": 0.02,
+    "max_p3_lhs_at_theta": 1.8399396761736887e-9,
+    "num_X": 156,
+    "num_X0": 50,
+    "num_Xu_wf": 116,
+    "primal": "FEASIBLE_POINT",
+    "rho": 100000.0,
+    "term": "OPTIMAL",
+    "theta_max": -0.12000001393055293,
+    "worst_p3": {
+      "C_x0_x": -6.972550181671977e-7,
+      "C_x0_xp": -6.953923730179667e-7,
+      "C_x_x0": 6.972550181671977e-7,
+      "C_x_xp": 1.862645149230957e-9,
+      "base_without_theta": 0.1200000157704926,
+      "distance_xp_to_nearest_successor_of_x": 2.2436397500000003,
+      "gap_x": 0.9974999999999996,
+      "gap_x0": 0.0,
+      "gap_xp": 0.6675,
+      "is_diagonal_x_xp": false,
+      "lambda2_C_x0_x": -1.3945100363343955e-8,
+      "lambda2zeta_plus_lambda3zeta": 0.12,
+      "lambda3_C_x_xp": 3.725290298461914e-11,
+      "lhs_at_theta": 1.8399396761736887e-9,
+      "nearest_successor_mode": 1,
+      "node": 1,
+      "region_x": 2,
+      "region_x0": 1,
+      "region_xp": 2,
+      "theta": -0.12000001393055293,
+      "x": [
+        2.7,
+        3.6975
+      ],
+      "x0": [
+        2.55,
+        2.55
+      ],
+      "x_near_D_SAFE": false,
+      "x_near_D_UNSAFE": false,
+      "xp": [
+        1.5,
+        2.1675
+      ],
+      "xp_near_D_SAFE": false,
+      "xp_near_D_UNSAFE": false
+    },
+    "zeta": 3.0
+  }
+]

@@ -1,23 +1,21 @@
-# Finite-grid coefficient polishing for the platoon PC-CC candidate, v3.
+# Monotone finite-grid coefficient polishing for the platoon PC-CC candidate, v5.
 #
 # This script is diagnostic only: it repairs/assesses a quadratic PC-CC on a
 # finite validation grid. A polished grid candidate is NOT an SOS/TSSOS proof.
 #
-# Differences from v2:
-#   - never silently reports the unchanged seed as a polished result;
-#   - writes a status JSON explaining whether any LP iterate was accepted;
-#   - saves every LP candidate separately;
-#   - rescans each LP candidate and selects by independent grid violation score;
-#   - uses explicit JuMP.MOI import.
+# Differences from v4:
+#   - monotone acceptance: a candidate is accepted only if full-grid worst violation improves;
+#   - rejected candidates still contribute their counterexample cuts;
+#   - final output is overwritten only by an improving candidate.
 #
 # Run:
 #   julia --project=. sos/pccc_polish_platoon_grid_lp.jl \
 #       results/pccc_synth_platoon_tssos_alternating_best.json 21 41
 #
 # Outputs:
-#   results/pccc_synth_platoon_grid_polished_v3_roundXX.json
-#   results/pccc_synth_platoon_grid_polished.json   only if an LP candidate is accepted
-#   results/pccc_synth_platoon_grid_polishing_status.json
+#   results/pccc_synth_platoon_grid_polished_monotone_roundXX.json
+#   results/pccc_synth_platoon_grid_polished_monotone.json   only if an LP candidate is accepted
+#   results/pccc_synth_platoon_grid_polishing_monotone_status.json
 
 using JSON
 using JuMP
@@ -26,7 +24,7 @@ using Printf
 
 const MOI = JuMP.MOI
 
-const DEFAULT_INPUT = joinpath("results", "pccc_synth_platoon_tssos_alternating_best.json")
+const DEFAULT_INPUT = joinpath("results", "pccc_synth_platoon_grid_polished_best.json")
 const DEFAULT_N1 = 21
 const DEFAULT_N2 = 41
 
@@ -41,14 +39,17 @@ const GRID_MARGIN_P2 = 0.0
 const GRID_MARGIN_P3 = 0.0
 
 const MAX_ROUNDS = 8
-const MAX_NEW_P1_CUTS = 2000
-const MAX_NEW_P2_CUTS = 3000
-const MAX_NEW_P3_CUTS = 3000
+# P3-focused schedule: round-4 already fixes P1 and mostly fixes P2.
+# Keep enough P1/P2 cuts to prevent regression, but allocate most cuts to P3.
+const MAX_NEW_P1_CUTS = 250
+const MAX_NEW_P2_CUTS = 1500
+const MAX_NEW_P3_CUTS = 8000
 
 # Trust region around seed. The best TSSOS candidate has coefficients around
 # 1e-6 to 1e-5, but a repair of order 1e-4 may be needed. Start generous.
 const INITIAL_RHO_UB = 5.0e-3
 const C_ABS_BOUND = 1.0e2
+const IMPROVE_TOL = 1.0e-10
 
 function f_sigma(sigma::Int, a1::Float64, a2::Float64)
     if sigma == 1
@@ -387,16 +388,17 @@ function main()
     cuts = Cut[]
     seen = Set{String}()
     accepted_any_lp = false
-    best_C = nothing
-    best_metrics = nothing
-    best_round = 0
-    best_rho = nothing
     history = Any[]
 
-    # Seed metrics, for comparison only.
+    # The seed is the incumbent. Only replace it by a candidate that improves
+    # the full-grid worst violation.
     p1, p2, p3, seed_metrics = scan_violations(Ccur, exponents, edges, nodes, X, X0, Xu, xi)
     println("Seed metrics: ", seed_metrics)
     push!(history, Dict("round" => 0, "type" => "seed", "metrics" => seed_metrics))
+    best_C = copy(Ccur)
+    best_metrics = deepcopy(seed_metrics)
+    best_round = 0
+    best_rho = 0.0
 
     for round in 1:MAX_ROUNDS
         println("\n==============================")
@@ -438,20 +440,36 @@ function main()
                 cand_metrics["P1_minimum"], cand_metrics["P2_minimum_active_conclusion"],
                 cand_metrics["P3_minimum_exact_active_decrease_slack"], cand_metrics["worst_violation"])
 
-        out_iter = joinpath("results", @sprintf("pccc_synth_platoon_grid_polished_v3_round%02d.json", round))
+        out_iter = joinpath("results", @sprintf("pccc_synth_platoon_grid_polished_monotone_round%02d.json", round))
         save_candidate(data, Cnext, out_iter, round, rho, cand_metrics)
-        accepted_any_lp = true
 
-        if best_metrics === nothing || cand_metrics["worst_violation"] < best_metrics["worst_violation"]
+        if cand_metrics["worst_violation"] + IMPROVE_TOL < best_metrics["worst_violation"]
+            accepted_any_lp = true
             best_C = copy(Cnext)
             best_metrics = deepcopy(cand_metrics)
             best_round = round
             best_rho = rho
+            Ccur = Cnext
+            println("Accepted candidate: full-grid worst violation improved.")
+        else
+            println("Rejected candidate: full-grid worst violation did not improve.")
+            # Add the rejected candidate's own worst cuts, then keep polishing from
+            # the incumbent. This prevents the iterate from drifting to a worse C.
+            rp1, rp2, rp3, _ = scan_violations(Cnext, exponents, edges, nodes, X, X0, Xu, xi)
+            added_reject = 0
+            for cut in vcat(rp1, rp2, rp3)
+                if !(cut.label in seen)
+                    push!(cuts, cut)
+                    push!(seen, cut.label)
+                    added_reject += 1
+                end
+            end
+            println("Added rejected-candidate cuts = ", added_reject)
+            Ccur = best_C
         end
 
-        Ccur = Cnext
-        if cand_metrics["worst_violation"] <= 0.0
-            println("Accepted LP candidate satisfies all selected finite-grid checks.")
+        if best_metrics["worst_violation"] <= 0.0
+            println("Accepted incumbent satisfies all selected finite-grid checks.")
             break
         end
     end
@@ -467,15 +485,15 @@ function main()
         "best_metrics" => best_metrics,
         "history" => history,
     )
-    save_status(joinpath("results", "pccc_synth_platoon_grid_polishing_status.json"), status)
+    save_status(joinpath("results", "pccc_synth_platoon_grid_polishing_monotone_status.json"), status)
 
     if accepted_any_lp && best_C !== nothing
-        out_path = joinpath("results", "pccc_synth_platoon_grid_polished.json")
+        out_path = joinpath("results", "pccc_synth_platoon_grid_polished_monotone.json")
         save_candidate(data, best_C, out_path, best_round, best_rho, best_metrics)
         println("\nSelected best LP candidate: ", out_path)
         println("Now run the standard validator on: ", out_path)
     else
-        println("\nNo LP candidate was accepted. The previous pccc_synth_platoon_grid_polished.json, if present, was not overwritten.")
+        println("\nNo LP candidate was accepted. The previous p3-focus polished JSON, if present, was not overwritten.")
     end
 end
 

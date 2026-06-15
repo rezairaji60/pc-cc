@@ -1,0 +1,234 @@
+{
+  "C_degree": 1,
+  "C_template_degree_limit": 2,
+  "basis_xy": [
+    "1",
+    "y2",
+    "y1",
+    "x2",
+    "x1",
+    "y2^2",
+    "y1*y2",
+    "y1^2",
+    "x2*y2",
+    "x2*y1",
+    "x2^2",
+    "x1*y2",
+    "x1*y1",
+    "x1*x2",
+    "x1^2"
+  ],
+  "candidate_saved": false,
+  "certificate_type": "analytic_no_return_gap_certificate",
+  "certificate_warning": "This certificate is explicit, not solver-generated. P3 is valid vacuously because C is strictly negative on X x Xu; use the persistence-aware validator for implication semantics.",
+  "coeff_values": [
+    [
+      [
+        -0.40001000000000003,
+        -0.40001000000000003
+      ],
+      [
+        -0.40001000000000003,
+        -0.40001000000000003
+      ]
+    ],
+    [
+      [
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        -1.0,
+        -1.0
+      ],
+      [
+        -1.0,
+        -1.0
+      ]
+    ],
+    [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ]
+  ],
+  "conditions": {
+    "P1": "C[p,q](x,f_sigma(x)) >= 0 because f_sigma(X) is separated from Xu by a large gap margin.",
+    "P2": "C depends only on terminal state y; hence active premise C(f_sigma(x),y)>=0 implies the identical conclusion C(x,y)>=0.",
+    "P3": "For y,z in Xu, C(x0,y) and C(y,z) are strictly negative; hence the antecedent of P3 is false and the implication holds vacuously."
+  },
+  "description": "Deterministic no-return PC-CC certificate for the nonlinear two-car platoon example.",
+  "edges": [
+    [
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      2
+    ],
+    [
+      1,
+      2,
+      2
+    ],
+    [
+      2,
+      2,
+      1
+    ]
+  ],
+  "explicit_polynomial": "C[p,q](x,y) = y2 - y1 - 0.40001 for all p,q.",
+  "feasible_certificate_saved": true,
+  "initial_set": {
+    "gap_max": 0.3
+  },
+  "iterations_completed": 0,
+  "nodes": [
+    1,
+    2
+  ],
+  "objective": null,
+  "paper_ready_solver_status": true,
+  "persistence_set": {
+    "gap_max": 0.4,
+    "interpretation": "Xu is the finite-visit/small-gap region."
+  },
+  "primal_status": "EXPLICIT_CERTIFICATE",
+  "state_domain": {
+    "gap_min": 0.0,
+    "x1_max": 3.0,
+    "x1_min": 0.0,
+    "x2_max": 5.1,
+    "x2_min": 0.0
+  },
+  "status": "EXPLICIT_CERTIFICATE",
+  "unsafe_set": {
+    "gap_max": 0.4,
+    "note": "Kept for backward compatibility with existing scripts; interpret as finite-visit region in the paper."
+  },
+  "wf_decrease": 1.0e-6
+}

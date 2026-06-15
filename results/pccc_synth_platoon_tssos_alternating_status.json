@@ -1,0 +1,122 @@
+{
+  "C_degree": 2,
+  "P2_premise_multiplier_degree": 0,
+  "P3_premise_multiplier_degree": 2,
+  "basis_xy": [
+    "1",
+    "y2",
+    "y1",
+    "x2",
+    "x1",
+    "y2^2",
+    "y1*y2",
+    "y1^2",
+    "x2*y2",
+    "x2*y1",
+    "x2^2",
+    "x1*y2",
+    "x1*y1",
+    "x1*x2",
+    "x1^2"
+  ],
+  "bootstrap_fixed_scalar_multipliers": {
+    "IMP_MULT_P2": 0.001,
+    "IMP_MULT_P3_A": 0.01,
+    "IMP_MULT_P3_B": 0.01
+  },
+  "candidate_saved": false,
+  "certificate_type": "tssos_alternating_implication_pairwise_polynomial_multipliers",
+  "certificate_warning": "Final Phase B solver status was accepted as certificate-grade.",
+  "coeff_values": "omitted; see pccc_synth_platoon_tssos_alternating.json",
+  "coefficient_regularization": {
+    "C_COEFF_BOUND": 1000.0,
+    "MULT_COEFF_BOUND": 1000.0,
+    "PHASEB_L1_WEIGHT": 1.0e-6,
+    "PHASEB_P3_CUT_MARGIN": 2.0e-7,
+    "PHASEB_P3_DEACT_MARGIN": 1.0e-6,
+    "PHASEB_P3_TIGHTEN_WEIGHT": 0.0001,
+    "PHASEB_SOFT_DEACTIVATION_WEIGHT": 0.003,
+    "USE_COEFF_BOUNDS": true,
+    "USE_L1_OBJECTIVE": true,
+    "USE_PHASEB_MARGIN_OBJECTIVE": true,
+    "USE_PHASEB_P3_DEACTIVATION_CUTS": false,
+    "USE_PHASEB_P3_TIGHTENING_OBJECTIVE": true,
+    "USE_PHASEB_SOFT_DEACTIVATION_OBJECTIVE": true,
+    "USE_PHASEB_TARGETED_P3_CUTS": true
+  },
+  "conditions": {
+    "P1": "For each edge (p,sigma,q), C[p,q](x,f_sigma(x)) >= 0 on X.",
+    "P2": "For each edge (p,sigma,q) and node r, C[q,r](f_sigma(x),y) >= 0 implies C[p,r](x,y) >= 0 on X x X, using nonnegative polynomial premise multipliers.",
+    "P3": "For all p,q,r, C[p,q](x0,y) >= 0 and C[q,r](y,z) >= 0 imply C[p,r](x0,z) <= C[p,q](x0,y) - wf_decrease on X0 x Xu x Xu, using nonnegative polynomial premise multipliers."
+  },
+  "description": "Alternating TSSOS implication-style PC-CC synthesis result for two-car platoon example",
+  "edges": [
+    [
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      2
+    ],
+    [
+      1,
+      2,
+      2
+    ],
+    [
+      2,
+      2,
+      1
+    ]
+  ],
+  "feasible_certificate_saved": true,
+  "fixed_premise_multipliers": "omitted; see pccc_synth_platoon_tssos_alternating.json",
+  "initial_set": {
+    "gap_max": 0.3
+  },
+  "iterations_completed": 4,
+  "nodes": [
+    1,
+    2
+  ],
+  "objective": -3.543832316399446e-5,
+  "paper_ready_solver_status": true,
+  "persistence_set": {
+    "gap_max": 0.4,
+    "interpretation": "Xu is used as the persistence region in this experiment."
+  },
+  "primal_status": "FEASIBLE_POINT",
+  "state_domain": {
+    "gap_min": 0.0,
+    "x1_max": 3.0,
+    "x1_min": 0.0,
+    "x2_max": 5.1,
+    "x2_min": 0.0
+  },
+  "status": "OPTIMAL",
+  "total_phaseA_psatz_constraints": 160,
+  "total_phaseB_psatz_constraints": 100,
+  "tssos_multiplier_nonneg_orders": {
+    "P2": 2,
+    "P3": 2
+  },
+  "tssos_orders": {
+    "P1": 2,
+    "P2": 3,
+    "P3": 3
+  },
+  "tssos_sparsity": {
+    "CS": "MF",
+    "GroebnerBasis": false,
+    "SO": 1,
+    "TS": "block"
+  },
+  "unsafe_set": {
+    "gap_max": 0.4,
+    "note": "Kept for backward compatibility with existing validation scripts; in the paper, interpret Xu as the persistence region."
+  },
+  "wf_decrease": 1.0e-8
+}

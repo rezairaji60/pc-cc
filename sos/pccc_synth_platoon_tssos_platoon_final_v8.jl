@@ -33,7 +33,7 @@ const MOI = JuMP.MOI
 # User parameters
 # ---------------------------------------------------------------------
 
-const WF_DEC = 1.0e-8
+const WF_DEC = 1.0e-6
 const C_DEGREE = 2
 
 # Alternating settings.
@@ -87,18 +87,31 @@ const PHASEB_RHO_UPPER = 1.0
 # closure relation too broad, so every P3 premise became active. These terms
 # push non-essential persistence-region pairs downward while retaining the
 # hard SOS constraints and the positive P1/P2/P3 margin objective.
-const USE_PHASEB_P3_TIGHTENING_OBJECTIVE = true
-const PHASEB_P3_TIGHTEN_WEIGHT = 1.0e-4
-const USE_PHASEB_TARGETED_P3_CUTS = true
-const PHASEB_P3_CUT_MARGIN = 2.0e-7
+const USE_PHASEB_P3_TIGHTENING_OBJECTIVE = false
+const PHASEB_P3_TIGHTEN_WEIGHT = 0.0
+const USE_PHASEB_TARGETED_P3_CUTS = false
+const PHASEB_P3_CUT_MARGIN = 1.0e-6
 # v6.5: hard deactivation cuts were useful but damaged P1/P2.  Turn them
 # off and replace them by stronger soft deactivation pressure in the
 # objective.  This preserves feasibility pressure from P1/P2 while still
 # encouraging the P3 antecedent to become selective.
 const USE_PHASEB_P3_DEACTIVATION_CUTS = false
 const PHASEB_P3_DEACT_MARGIN = 1.0e-6
-const USE_PHASEB_SOFT_DEACTIVATION_OBJECTIVE = true
-const PHASEB_SOFT_DEACTIVATION_WEIGHT = 3.0e-3
+const USE_PHASEB_SOFT_DEACTIVATION_OBJECTIVE = false
+const PHASEB_SOFT_DEACTIVATION_WEIGHT = 0.0
+
+# Final case-study shaping: for the platoon dynamics used in the paper,
+# the one-step image of the full domain X is disjoint from the small-gap
+# finite-visit set Xu = {x2 - x1 <= 0.4}.  We encode this geometrically by
+# requiring every graph-indexed closure relation C[p,q](x,y) to be strictly
+# negative on X x Xu.  This makes P3 active only if the certificate also
+# proves a return to Xu; since P1/P2 certify the actual transition closure,
+# the hard SOS constraints must simultaneously keep genuine one-step images
+# positive.  This is not a theorem assumption; it is a synthesis shaping
+# constraint exploiting the benchmark's no-return geometry.
+const USE_PHASEB_NO_RETURN_TO_XU_CONSTRAINTS = true
+const PHASEB_NO_RETURN_MARGIN = 1.0e-5
+const TSSOS_ORDER_NO_RETURN = 3
 
 # Candidate extraction policy. Approximate iterates may be used to continue
 # alternating, but only accepted solver statuses are marked paper-ready.
@@ -510,8 +523,6 @@ function add_phaseB_targeted_p3_cuts!(model, C)
         (2, 1, 2, (3.0, 3.1875), (0.0, 0.1275), (3.0, 3.315)),
         # v6.5 worst exact-active counterexample.
         (2, 2, 1, (3.0, 3.1875), (3.0, 3.315), (0.0, 0.0)),
-        # xi=1e-7 worst exact-active counterexample.
-        (1, 2, 1, (3.0, 3.1875), (0.0, 0.255), (3.0, 3.06)),
     ]
 
     ncuts = 0
@@ -520,6 +531,36 @@ function add_phaseB_targeted_p3_cuts!(model, C)
         rhs = C_sample_expr(C[p, q], x0p[1], x0p[2], yp[1], yp[2]) - WF_DEC - PHASEB_P3_CUT_MARGIN
         @constraint(model, lhs <= rhs)
         ncuts += 1
+    end
+    return ncuts
+end
+
+
+function add_phaseB_no_return_to_Xu_constraints!(model, C)
+    if !USE_PHASEB_NO_RETURN_TO_XU_CONSTRAINTS
+        return 0
+    end
+
+    # Formal SOS shaping for the platoon benchmark: no state in X maps into
+    # Xu under either mode, so a valid transition-closure overapproximation
+    # need not mark pairs with terminal state in Xu as reachable. Enforcing
+    # C[p,q](x,y) <= -margin on X x Xu deactivates the P3 antecedent for
+    # artificial return-to-Xu pairs while leaving P1 to keep actual one-step
+    # transitions positive. This is the key finalization step for the case
+    # study; it replaces ad hoc pointwise counterexample cuts.
+    X_Xu_cons = vcat(X_cons_x, Xu_cons_y)
+    vars_xy = [x1, x2, y1, y2]
+    ncuts = 0
+    for p in nodes
+        for q in nodes
+            add_putinar_nonneg!(model,
+                -C[p, q] - PHASEB_NO_RETURN_MARGIN,
+                vars_xy,
+                X_Xu_cons,
+                TSSOS_ORDER_NO_RETURN;
+                label="B_no_return_X_to_Xu_$(p)_$(q)")
+            ncuts += 1
+        end
     end
     return ncuts
 end
@@ -802,8 +843,12 @@ function build_phaseB_problem(model, mult_fixed)
     if num_targeted_cuts > 0
         println("Added Phase B targeted P3 CEGIS cuts = ", num_targeted_cuts)
     end
+    num_no_return = add_phaseB_no_return_to_Xu_constraints!(model, C)
+    if num_no_return > 0
+        println("Added Phase B no-return-to-Xu SOS constraints = ", num_no_return)
+    end
 
-    num_psatz_constraints = 0
+    num_psatz_constraints = num_no_return
 
     for (p, sigma, q) in edges
         poly = C_x_fx(C[p, q], sigma)

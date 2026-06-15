@@ -1,0 +1,190 @@
+{
+  "basis": [
+    "1",
+    "x1",
+    "x2",
+    "x1^2",
+    "x1*x2",
+    "x2^2"
+  ],
+  "certificate_type": "legacy_piecewise_quadratic_node_potential_grid",
+  "coeff_bound": 10000.0,
+  "coeffs_reg": [
+    [
+      [
+        -2.0181812103183177,
+        0.6231379876601533,
+        -0.9201454475771136,
+        -0.29956127281010736,
+        0.21271468242318492,
+        0.07503014242763617
+      ],
+      [
+        -88.24599213321687,
+        -168.23211903940754,
+        229.26638951038456,
+        197.36278555153584,
+        -229.2663895103511,
+        31.002892426462353
+      ],
+      [
+        -0.0,
+        -4.629611153969903e-9,
+        -1.2373048981759467,
+        -1.7132932423255744e-9,
+        3.123445927844837e-9,
+        0.12656954089439978
+      ]
+    ],
+    [
+      [
+        -0.0,
+        1.5350522735522907,
+        -2.0442595284929137,
+        5.865244992763908,
+        -11.340628234516567,
+        5.577768581540933
+      ],
+      [
+        62.178474540845805,
+        188.55106723133068,
+        -229.26638951040454,
+        59.26432939217118,
+        -229.26638951039752,
+        170.36490522801506
+      ],
+      [
+        1.9155375337414071,
+        -2.220840806312011e-9,
+        -1.2373045825894904,
+        -1.8396546720008044e-9,
+        2.764102344064642e-9,
+        0.1265695086920137
+      ]
+    ]
+  ],
+  "d_safe": 0.3,
+  "d_unsafe": 0.4,
+  "delta1": 0.0,
+  "delta2": 0.0,
+  "delta3": 0.0,
+  "description": "Julia reproduction of legacy V-based PC-CC grid synthesis for platoon example",
+  "edges": [
+    [
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      2
+    ],
+    [
+      1,
+      2,
+      2
+    ],
+    [
+      2,
+      2,
+      1
+    ]
+  ],
+  "grid_certified": true,
+  "lambda1": 0.95,
+  "lambda2": 0.02,
+  "lambda3": 0.02,
+  "n_regions": 3,
+  "nodes": [
+    1,
+    2
+  ],
+  "note": "Finite-grid certificate only; not an SOS proof. Use for reproducing first-version result and preparing SOS/TSSOS lift.",
+  "objective": 229.26638950965736,
+  "objective_description": "minimize rho subject to |coefficients| <= rho <= coeff_bound",
+  "primal_status": "FEASIBLE_POINT",
+  "rank_nodes": [
+    1
+  ],
+  "region_description": "Region 1: gap<=D_SAFE; Region 2: D_SAFE<gap<=D_UNSAFE; Region 3: gap>D_UNSAFE",
+  "status": "OPTIMAL",
+  "synthesis_grid": {
+    "coarse_n1": 15,
+    "coarse_n2": 15,
+    "h_x1": 0.21428571428571427,
+    "h_x2": 0.36428571428571427,
+    "num_X": 156,
+    "num_X0": 19,
+    "num_Xu_wf": 4,
+    "wf_n1": 7,
+    "wf_n2": 41,
+    "x0_n1": 7,
+    "x0_n2": 41
+  },
+  "theta": 5.0e-5,
+  "validation_metrics": {
+    "fine_n1": 15,
+    "fine_n2": 15,
+    "grid_certified": true,
+    "h_x1": 0.21428571428571427,
+    "h_x2": 0.36428571428571427,
+    "num_X0": 19,
+    "num_X_fine": 156,
+    "num_Xu_wf": 4,
+    "viol1_transition_boundedness": -2.9501504224559767,
+    "viol2_forward_contraction": 5.156899463010234e-9,
+    "viol3_well_foundedness": 6.196504420685756e-10,
+    "wf_n1": 7,
+    "wf_n2": 41,
+    "worst1": {
+      "fx": [
+        0.0,
+        2.0
+      ],
+      "sigma": 1,
+      "v": 1,
+      "x": [
+        0.0,
+        0.0
+      ]
+    },
+    "worst2": {
+      "edge": [
+        2,
+        2,
+        1
+      ],
+      "fx": [
+        0.0,
+        5.0396
+      ],
+      "x": [
+        0.0,
+        5.1
+      ],
+      "xp": [
+        2.5714285714285716,
+        2.914285714285714
+      ]
+    },
+    "worst3": {
+      "v": 1,
+      "x": [
+        3.0,
+        3.315
+      ],
+      "x0": [
+        0.0,
+        0.0
+      ],
+      "xp": [
+        0.0,
+        0.3825
+      ]
+    },
+    "x0_n1": 7,
+    "x0_n2": 41
+  },
+  "zeta": 3.0
+}
