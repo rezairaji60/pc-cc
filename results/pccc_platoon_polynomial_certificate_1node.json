@@ -1,0 +1,149 @@
+{
+  "C_degree": 1,
+  "C_template_degree_limit": 2,
+  "basis_xy": [
+    "1",
+    "y2",
+    "y1",
+    "x2",
+    "x1",
+    "y2^2",
+    "y1*y2",
+    "y1^2",
+    "x2*y2",
+    "x2*y1",
+    "x2^2",
+    "x1*y2",
+    "x1*y1",
+    "x1*x2",
+    "x1^2"
+  ],
+  "candidate_saved": false,
+  "certificate_type": "analytic_polynomial_gap_certificate_one_node",
+  "certificate_warning": "Explicit certificate represented within the quadratic SOS/TSSOS-compatible template. The active P3 antecedent is empty on X0 x Xvf x Xvf.",
+  "coeff_values": [
+    [
+      [
+        -0.40001000000000003
+      ]
+    ],
+    [
+      [
+        1.0
+      ]
+    ],
+    [
+      [
+        -1.0
+      ]
+    ],
+    [
+      [
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0
+      ]
+    ],
+    [
+      [
+        0.0
+      ]
+    ]
+  ],
+  "conditions": {
+    "P1": "C[1,1](x,f_sigma(x)) >= 0 because f_sigma(X) is separated from Xvf by a large gap margin.",
+    "P2": "C depends only on terminal state y; hence active premise C(f_sigma(x),y)>=0 implies the identical conclusion C(x,y)>=0.",
+    "P3": "For y,z in Xvf, C(x0,y) and C(y,z) are strictly negative; hence the antecedent of P3 is false and the implication holds."
+  },
+  "description": "Explicit low-degree polynomial PC-CC certificate for the nonlinear two-car platoon example on the one-node path-complete graph.",
+  "edges": [
+    [
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      2,
+      1
+    ]
+  ],
+  "explicit_polynomial": "C[1,1](x,y) = y2 - y1 - 0.40001.",
+  "feasible_certificate_saved": true,
+  "graph_interpretation": "One-node path-complete graph with self-loops for modes 1 and 2; this is the common closure-certificate case.",
+  "initial_set": {
+    "gap_max": 0.3
+  },
+  "iterations_completed": 0,
+  "nodes": [
+    1
+  ],
+  "objective": null,
+  "paper_ready_solver_status": true,
+  "persistence_set": {
+    "gap_max": 0.4,
+    "interpretation": "Xvf is the finite-visit/small-gap region."
+  },
+  "primal_status": "EXPLICIT_CERTIFICATE",
+  "state_domain": {
+    "gap_min": 0.0,
+    "x1_max": 3.0,
+    "x1_min": 0.0,
+    "x2_max": 5.1,
+    "x2_min": 0.0
+  },
+  "status": "EXPLICIT_CERTIFICATE",
+  "unsafe_set": {
+    "gap_max": 0.4,
+    "note": "Kept for backward compatibility with existing scripts; interpret as finite-visit region in the paper."
+  },
+  "wf_decrease": 1.0e-6
+}
